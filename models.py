@@ -49,6 +49,7 @@ class Project(models.Model):
     team = models.CharField(max_length=100, blank=False, null=False)
     image_count_authored = models.IntegerField(default=0)
     date_delivered = models.DateField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Discipline(models.Model):
     '''

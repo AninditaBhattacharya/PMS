@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Client(models.Model):
     '''
@@ -109,3 +110,11 @@ class Finance(models.Model):
     expected_money_in_date = models.DateField()
     money_in = models.FloatField(default=0.0)
 
+class UserType(models.Model):
+    '''
+    DB Class to handle all User Permissions.
+    '''
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_superadmin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+    is_assosciate_admin = models.BooleanField(default=False)

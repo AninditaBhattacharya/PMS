@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
 from pms.models import Project, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, UserType
+from datetime import datetime
 
 class CreateUserPMS(APIView):
     '''
@@ -455,4 +456,97 @@ class DeleteDiscipline(APIView):
         discipline_id = post_param['discipline_id']
         discipline_object_instance = Discipline.objects.get(pk = discipline_id)
         discipline_object_instance.delete()
+        return Response(status = status.HTTP_200_OK)
+
+class CreateCounter(APIView):
+    '''
+    POST Method to create a Counter.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_code = post_param['client_code']
+        client_objects = Client.objects.filter(client_code = client_code)
+        if len(client_objects):
+            client_object = client_objects[0]
+            discipline_code = post_param['discipline_code']
+            discipline_objects = Discipline.objects.filter(discipline_code = discipline_code)
+            if len(discipline_objects):
+                discipline_object = discipline_objects[0]
+                year = datetime.date.today().year
+                counter = post_param['counter']
+                counter_object = Counter()
+                counter_object.client = client_object
+                counter_object.discipline = discipline_object
+                counter_object.year = year
+                counter_object.counter = counter
+                counter_object.save()
+                return Response(status = status.HTTP_200_OK)
+            else:
+                return Response({"error" : "No such discipline exists for given code."}, status = status.HTTP_417_EXPECTATION_FAILED)
+        else:
+            return Response({"error" : "No such client exists for given Client code."}, status = status.HTTP_417_EXPECTATION_FAILED)
+    
+class ReadCounters(APIView):
+    '''
+    GET Method to read all counter objects.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        response_object = []
+        counter_objects = Counter.objects.all()
+        for counter_object in counter_objects:
+            response_object.append(
+                {
+                    "counter_id" : counter_object.id,
+                    "client_code" : counter_object.client.client_code,
+                    "discipline_code" : counter_object.discipline.discipline_code,
+                    "year" : counter_object.year,
+                    "counter" : counter_object.counter
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateCounter(APIView):
+    '''
+    POST Method to update a counter object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        counter_id = post_param['counter_id']
+        counter_object = Counter.objects.get(pk = counter_id)
+        try:
+            client_code = post_param['client_code']
+            client_object = Client.objects.get(client_code = client_code)
+            counter_object.client = client_object
+        except:
+            pass
+        try:
+            discipline_code = post_param['discipline_code']
+            discipline_object = Discipline.objects.get(discipline_code = discipline_code)
+            counter_object.discipline = discipline_object
+        except:
+            pass
+        try:
+            counter_object.year = post_param['year']
+        except:
+            pass
+        try:
+            counter_object.counter = post_param['counter']
+        except:
+            pass
+        counter_object.save()
+        return Response(status = status.HTTP_200_OK)
+
+class DeleteCounter(APIView):
+    '''
+    POST Method to delete a counter object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        counter_id = post_param['counter_id']
+        counter_object_instance = Counter.objects.get(pk = counter_id)
+        counter_object_instance.delete()
         return Response(status = status.HTTP_200_OK)

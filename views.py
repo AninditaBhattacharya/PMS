@@ -859,3 +859,137 @@ class ReadBufferImages(APIView):
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)
+
+class CreateFinance(APIView):
+    '''
+    POST Method to create Finance for a Project.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        project_id = post_param['project_id']
+        project_objects = Project.objects.filter(pk = project_id)
+        if len(project_objects):
+            project_object = project_objects[0]
+            finance_object = Finance()
+            finance_object.project = project_object
+            finance_object.project_quote = float(post_param['project_quote'])
+            finance_object.project_currency = post_param['project_currency']
+            finance_object.expected_invoicing_date = post_param['expected_invoicing_date']
+            finance_object.po_amount = float(post_param['po_amount'])
+            finance_object.po_number = post_param['po_number']
+            finance_object.date_invoiced = post_param['date_invoiced']
+            finance_object.amount_invoiced = float(post_param['amount_invoiced'])
+            finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
+            finance_object.expected_money_in_date = post_param['expected_money_in_date']
+            finance_object.money_in = float(post_param['moeny_in'])
+            finance_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such project exists."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class ReadFinances(APIView):
+    '''
+    GET Method to read all Finances.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        response_object = []
+        finance_objects = Finance.objects.all()
+        for finance_object in finance_objects:
+            response_object.append(
+                {
+                    "finance_id" : finance_object.id,
+                    "project_id" : finance_object.project.id,
+                    "project_quote" : finance_object.project_quote,
+                    "project_currency" : finance_object.project_currency,
+                    "expected_invoicing_date" : finance_object.expected_invoicing_date,
+                    "po_amount" : finance_object.po_amount, 
+                    "po_number" : finance_object.po_number,
+                    "date_invoiced" : finance_object.date_invoiced,
+                    "amount_invoiced" : finance_object.amount_invoiced,
+                    "number_of_days_since_invoiced" : finance_object.number_of_days_since_invoiced,
+                    "expected_money_in_date" : finance_object.expected_money_in_date,
+                    "money_in" : finance_object.money_in
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateFinance(APIView):
+    '''
+    POST Method to update a finance object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        finance_id = post_param['finance_id']
+        finance_objects = Finance.objects.filter(pk = finance_id)
+        if len(finance_objects):
+            finance_object = finance_objects[0]
+            try:
+                project_id = post_param['project_id']
+                project_object = Project.objects.get(pk = project_id)
+                finance_object.project = project_object
+            except:
+                pass
+            try:
+                finance_object.project_quote = float(post_param['project_quote'])
+            except:
+                pass
+            try:
+                finance_object.project_currency = post_param['project_currency']
+            except:
+                pass
+            try:
+                finance_object.expected_invoicing_date = post_param['expected_invoicing_date']
+            except:
+                pass
+            try:
+                finance_object.po_amount = float(post_param['po_amount'])
+            except:
+                pass
+            try:
+                finance_object.po_number = post_param['po_number']
+            except:
+                pass
+            try:
+                finance_object.date_invoiced = post_param['date_invoiced']
+            except:
+                pass
+            try:
+                finance_object.amount_invoiced = float(post_param['amount_invoiced'])
+            except:
+                pass
+            try:
+                finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
+            except:
+                pass
+            try:
+                finance_object.expected_money_in_date = post_param['expected_money_in_date']
+            except:
+                pass
+            try:
+                finance_object.money_in = float(post_param['money_in'])
+            except:
+                pass
+            finance_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No Finance sheet exists."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class DeleteFinance(APIView):
+    '''
+    POST Method to delete a finance object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        finance_id = post_param['finance_id']
+        finance_objects = Finance.objects.filter(pk = finance_id)
+        if len(finance_objects):
+            finance_object = finance_objects[0]
+            finance_object_instance = finance_object
+            finance_object_instance.delete()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such finance object exists."}, status = status.HTTP_417_EXPECTATION_FAILED)

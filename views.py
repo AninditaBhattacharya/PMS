@@ -550,3 +550,87 @@ class DeleteCounter(APIView):
         counter_object_instance = Counter.objects.get(pk = counter_id)
         counter_object_instance.delete()
         return Response(status = status.HTTP_200_OK)
+
+class CreateDayCountTracker(APIView):
+    '''
+    POST Method to create a Day Count Tracker.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        project_id = post_param['project_id']
+        project_objects = Project.objects.filter(pk = project_id)
+        if len(project_objects):
+            project_object = project_objects[0]
+            image_count = post_param['image_count']
+            image_count_authored = post_param['image_count_authored']
+            day_count_tacker_object = DayCountTracker()
+            day_count_tacker_object.project = project_object
+            day_count_tacker_object.image_count = image_count
+            day_count_tacker_object.image_count_authored = image_count_authored
+            day_count_tacker_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such project found for give ID."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class ReadDayCountTrackers(APIView):
+    '''
+    GET Method to read all Day Count Trackers objects.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        response_object = []
+        day_count_tacker_objects = DayCountTracker.objects.all()
+        for day_count_tacker_object in day_count_tacker_objects:
+            response_object.append(
+                {
+                    "day_count_tracker_id" : day_count_tacker_object.id,
+                    "project_id" : day_count_tacker_object.project.id,
+                    "image_count" : day_count_tacker_object.image_count,
+                    "image_count_authored" : day_count_tacker_object.image_count_authored
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateDayCountTracker(APIView):
+    '''
+    POST Method to update a Day Count Tracker.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        day_count_tracker_id = post_param['day_count_tracker_id']
+        day_count_tracker_objects = DayCountTracker.objects.filter(pk = day_count_tracker_id)
+        if len(day_count_tracker_objects):
+            day_count_tracker_object = day_count_tracker_objects[0]
+            try:
+                project_id = post_param['project_id']
+                project_object = Project.objects.get(pk = project_id)
+                day_count_tracker_object.project = project_object
+            except:
+                pass
+            try:
+                day_count_tracker_object.image_count = post_param['image_count']
+            except:
+                pass
+            try:
+                day_count_tracker_object.image_count_authored = post_param['image_count_authored']
+            except:
+                pass
+            day_count_tracker_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such day count tracker object exists."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class DeleteDayCountTracker(APIView):
+    '''
+    POST Method to delete a Day Count Tracker.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        day_count_tracker_id = post_param['day_count_tracker_id']
+        day_count_tracker_object_instance = DayCountTracker.objects.get(pk = day_count_tracker_id)
+        day_count_tracker_object_instance.delete()
+        return Response(status = status.HTTP_200_OK)
+

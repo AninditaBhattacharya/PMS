@@ -1,6 +1,7 @@
 from ast import expr_context
 from curses.ascii import US
 from pydoc import cli
+from sys import api_version
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -396,4 +397,62 @@ class CreateDiscipline(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
         post_param = request.data
-        
+        discipline_object = Discipline()
+        discipline_object.discipline_name = post_param['discipline_name']
+        discipline_object.discipline_code = post_param['discipline_code']
+        discipline_object.save()
+        return Response(status = status.HTTP_200_OK)
+
+class ReadDisciplines(APIView):
+    '''
+    GET Method to read all disciplines.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        response_object = []
+        discipline_objects = Discipline.objects.all()
+        for discipline_object in discipline_objects:
+            response_object.append(
+                {
+                    "discipline_id" : discipline_object.id,
+                    "discipline_name" : discipline_object.discipline_name,
+                    "discipline_code" : discipline_object.discipline_code
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateDiscipline(APIView):
+    '''
+    POST Method to update a discipline.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        discipline_id = post_param['discipline_id']
+        discipline_objects = Discipline.objects.filter(pk = discipline_id)
+        if len(discipline_objects):
+            discipline_object = discipline_objects[0]
+            try:
+                discipline_object.discipline_name = post_param['discipline_name']
+            except:
+                pass
+            try:
+                discipline_object.discipline_code = post_param['discipline_code']
+            except:
+                pass
+            discipline_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such discipline found."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class DeleteDiscipline(APIView):
+    '''
+    POST Method to delete a discipline.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        discipline_id = post_param['discipline_id']
+        discipline_object_instance = Discipline.objects.get(pk = discipline_id)
+        discipline_object_instance.delete()
+        return Response(status = status.HTTP_200_OK)

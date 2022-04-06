@@ -1,5 +1,6 @@
 from ast import expr_context
 from curses.ascii import US
+from pydoc import cli
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -250,3 +251,149 @@ class ReadProjects(APIView):
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)
 
+class CreateClient(APIView):
+    '''
+    POST Method to create a client.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_name = post_param['client_name']
+        client_code = post_param['client_code']
+        client_object = Client()
+        client_object.client_name = client_name
+        client_object.client_code = client_code
+        client_object.save()
+        return Response(status=status.HTTP_200_OK)
+
+class ReadClients(APIView):
+    '''
+    GET Method to get all clients.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        response_object = []
+        client_objects = Client.objects.all()
+        for client_object in client_objects:
+            response_object.append(
+                {
+                    "client_id" : client_object.id,
+                    "client_name" : client_object.client_name, 
+                    "client_code" : client_object.client_code
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateClient(APIView):
+    '''
+    POST Method to update a client information.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_id = post_param['client_id']
+        client_objects = Client.objects.filter(pk = client_id)
+        if len(client_objects):
+            client_object = client_objects[0]
+            try:
+                client_object.client_name = post_param['client_name']
+            except:
+                pass
+            try:
+                client_object.client_code = post_param['client_code']
+            except:
+                pass
+            client_object.save()
+            return Response(sttaus = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No Client exists for given client ID."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class DeleteClient(APIView):
+    '''
+    POST Method to delete a client.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_id = post_param['client_id']
+        client_object_instance = Client.objects.get(pk = client_id)
+        client_object_instance.delete()
+        return Response(status = status.HTTP_200_OK)
+
+class CreateDeliveryOwner(APIView):
+    '''
+    POST Method to create a Delivery Owner.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        name = post_param['name']
+        email = post_param['email']
+        delivery_owner_object = DeliveryOwner()
+        delivery_owner_object.name = name
+        delivery_owner_object.email = email
+        delivery_owner_object.save()
+        return Response(status = status.HTTP_200_OK)
+
+class ReadDeliveryOwners(APIView):
+    '''
+    GET Method to read all Delivery Owners. 
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        delivery_owner_objects = DeliveryOwner.objects.all()
+        response_object = []
+        for delivery_owner_object in delivery_owner_objects:
+            response_object.append(
+                {
+                    "delivery_owner_id" : delivery_owner_object.id,
+                    "name" : delivery_owner_object.name,
+                    "email" : delivery_owner_object.email
+                }
+            )
+        return Response({"result" : response_object}, status = status.HTTP_200_OK)
+
+class UpdateDeliveryOwner(APIView):
+    '''
+    POST Method to update a delivery owner.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        delivery_owner_id = post_param['delivery_owner_id']
+        delivery_owner_objects = DeliveryOwner.objects.filter(pk = delivery_owner_id)
+        if len(delivery_owner_objects):
+            delivery_owner_object = delivery_owner_objects[0]
+            try:
+                delivery_owner_object.name = post_param['name']
+            except:
+                pass
+            try:
+                delivery_owner_object.email = post_param['email']
+            except:
+                pass
+            delivery_owner_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such delivery owner object exist."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class DeleteDeliveryOwner(APIView):
+    '''
+    POST Method to delete a delivery owner.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        delivery_owner_id = post_param['delivery_owner_id']
+        delivery_owner_object_instance = DeliveryOwner.objects.get(pk = delivery_owner_id)
+        delivery_owner_object_instance.delete()
+        return Response(status = status.HTTP_200_OK)
+
+class CreateDiscipline(APIView):
+    '''
+    POST Method to create a Discipline.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        

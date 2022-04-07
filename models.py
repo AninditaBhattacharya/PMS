@@ -31,7 +31,7 @@ class DocType(models.Model):
     pptx = models.BooleanField(default = False)
     xlsx = models.BooleanField(default = False)
 
-class Project(models.Model):
+class PMSProject(models.Model):
     '''
     DB Class to handle all the Project related information.
     '''

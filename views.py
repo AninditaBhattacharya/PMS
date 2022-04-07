@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
-from pms.models import Project, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, UserType
+from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, UserType
 from datetime import datetime
 
 class CreateUserPMS(APIView):
@@ -83,7 +83,7 @@ class CreateProject(APIView):
                 image_count_authored = post_param['image_count_authored']
                 date_delivered = post_param['date_delivered']
                 user_object = request.user
-                project_object = Project()
+                project_object = PMSProject()
                 project_object.client = client_object
                 project_object.project_name = project_name
                 project_object.client_poc = client_poc
@@ -114,7 +114,7 @@ class UpdateProject(APIView):
     def post(self, request):
         post_param = request.data
         project_id = post_param['project_id']
-        project_object = Project.objects.get(pk = project_id)
+        project_object = PMSProject.objects.get(pk = project_id)
         try:
             client_code = post_param['client_code']
             client_object = Client.objects.get(client_code = client_code)
@@ -210,7 +210,7 @@ class DeleteProject(APIView):
     def post(self, request):
         post_param = request.data
         project_id = post_param['project_id']
-        project_object_instances = Project.objects.filter(pk = project_id)
+        project_object_instances = PMSProject.objects.filter(pk = project_id)
         if len(project_object_instances):
             project_object_instance = project_object_instances[0]
             project_object_instance.delete()
@@ -224,7 +224,7 @@ class ReadProjects(APIView):
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
-        project_objects = Project.objects.all()
+        project_objects = PMSProject.objects.all()
         response_object = []
         for project_object in project_objects:
             response_object.append(
@@ -559,7 +559,7 @@ class CreateDayCountTracker(APIView):
     def post(self, request):
         post_param = request.data
         project_id = post_param['project_id']
-        project_objects = Project.objects.filter(pk = project_id)
+        project_objects = PMSProject.objects.filter(pk = project_id)
         if len(project_objects):
             project_object = project_objects[0]
             image_count = post_param['image_count']
@@ -605,7 +605,7 @@ class UpdateDayCountTracker(APIView):
             day_count_tracker_object = day_count_tracker_objects[0]
             try:
                 project_id = post_param['project_id']
-                project_object = Project.objects.get(pk = project_id)
+                project_object = PMSProject.objects.get(pk = project_id)
                 day_count_tracker_object.project = project_object
             except:
                 pass
@@ -642,7 +642,7 @@ class CreateBufferImages(APIView):
     def post(self, request):
         post_param = request.data
         parent_project_id = post_param['parent_project_id']
-        parent_project_objects = Project.objects.filter(pk = parent_project_id)
+        parent_project_objects = PMSProject.objects.filter(pk = parent_project_id)
         if len(parent_project_objects):
             parent_project_object = parent_project_objects[0]
             client_code = post_param['client_code']
@@ -717,7 +717,7 @@ class UpdateBufferImage(APIView):
         project_object = BufferImages.objects.get(pk = project_id)
         try:
             parent_project_id = post_param['parent_project_id']
-            parent_project_object = Project.objects.get(pk = parent_project_id)
+            parent_project_object = PMSProject.objects.get(pk = parent_project_id)
             project_object.parent_project = parent_project_object
         except:
             pass
@@ -868,7 +868,7 @@ class CreateFinance(APIView):
     def post(self, request):
         post_param = request.data
         project_id = post_param['project_id']
-        project_objects = Project.objects.filter(pk = project_id)
+        project_objects = PMSProject.objects.filter(pk = project_id)
         if len(project_objects):
             project_object = project_objects[0]
             finance_object = Finance()
@@ -928,7 +928,7 @@ class UpdateFinance(APIView):
             finance_object = finance_objects[0]
             try:
                 project_id = post_param['project_id']
-                project_object = Project.objects.get(pk = project_id)
+                project_object = PMSProject.objects.get(pk = project_id)
                 finance_object.project = project_object
             except:
                 pass

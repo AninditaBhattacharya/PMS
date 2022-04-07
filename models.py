@@ -71,7 +71,7 @@ class DayCountTracker(models.Model):
     '''
     DB Class to handle Daily count trackers.
     '''
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
     image_count = models.IntegerField(default=0)
     image_count_authored = models.IntegerField(default=0)
 
@@ -79,7 +79,7 @@ class BufferImages(models.Model):
     '''
     DB Class to handle Buffer / Extra Images for a Project.
     '''
-    parent_project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    parent_project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     project_name = models.CharField(max_length=100, blank=False, null=False)
     client_poc = models.CharField(max_length=1000, blank=False, null=False)
@@ -100,7 +100,7 @@ class Finance(models.Model):
     '''
     DB Class to handle all the Project Finances.
     '''
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
     project_quote = models.FloatField(default=0.0)
     project_currency = models.CharField(max_length=100, blank=False, null=False)
     expected_invoicing_date = models.DateField()

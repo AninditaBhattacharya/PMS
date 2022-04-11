@@ -663,7 +663,7 @@ class CreateBufferImages(APIView):
                     project_type_object.is_alttext = project_type_is_alttext
                     project_type_object.is_remediation = project_type_is_remediation
                     project_type_object.save()
-                    date_booked = post_param['date_booked']
+                    date_booked = datetime_parser.parse(post_param['date_booked'])
                     doc_type_docx = post_param['doc_type_docx']
                     doc_type_pdf = post_param['doc_type_pdf']
                     doc_type_pptx = post_param['doc_type_pptx']
@@ -674,12 +674,12 @@ class CreateBufferImages(APIView):
                     doc_type_object.pptx = doc_type_pptx
                     doc_type_object.xlsx = doc_type_xlsx
                     doc_type_object.save()
-                    estimated_date_of_delivery = post_param['estimated_date_of_delivery']
+                    estimated_date_of_delivery = datetime_parser.parse(post_param['estimated_date_of_delivery'])
                     image_count = post_param['image_count']
                     status_project = post_param['status']
                     team = post_param['team']
                     image_count_authored = post_param['image_count_authored']
-                    date_delivered = post_param['date_delivered']
+                    date_delivered = datetime_parser.parse(post_param['date_delivered'])
                     user_object = request.user
                     project_object = BufferImages()
                     project_object.parent_project = parent_project_object

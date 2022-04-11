@@ -876,14 +876,14 @@ class CreateFinance(APIView):
             finance_object.project = project_object
             finance_object.project_quote = float(post_param['project_quote'])
             finance_object.project_currency = post_param['project_currency']
-            finance_object.expected_invoicing_date = post_param['expected_invoicing_date']
+            finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
             finance_object.po_amount = float(post_param['po_amount'])
             finance_object.po_number = post_param['po_number']
-            finance_object.date_invoiced = post_param['date_invoiced']
+            finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
             finance_object.amount_invoiced = float(post_param['amount_invoiced'])
             finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
-            finance_object.expected_money_in_date = post_param['expected_money_in_date']
-            finance_object.money_in = float(post_param['moeny_in'])
+            finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
+            finance_object.money_in = float(post_param['money_in'])
             finance_object.save()
             return Response(status = status.HTTP_200_OK)
         else:

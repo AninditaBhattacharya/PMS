@@ -249,7 +249,7 @@ class ReadProjects(APIView):
                     "team" : project_object.team,
                     "image_count_authored" : project_object.image_count_authored,
                     "date_delivered" : project_object.date_delivered,
-                    "created_by" : project_object.user.email
+                    "created_by" : project_object.created_by.email
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)

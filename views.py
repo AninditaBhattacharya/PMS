@@ -100,6 +100,9 @@ class CreateProject(APIView):
                 project_object.image_count_authored = image_count_authored
                 project_object.date_delivered = date_delivered
                 project_object.created_by = user_object
+                project_object.discipline = post_param['discipline']
+                project_name.project_complexity = post_param['project_complexity']
+                project_object.title_name = post_param['title_name']
                 project_object.save()
                 return Response(status=status.HTTP_200_OK)
             else:
@@ -200,6 +203,18 @@ class UpdateProject(APIView):
             project_object.date_delivered = date_delivered
         except:
             pass
+        try:
+            project_object.project_complexity = post_param['project_complexity']
+        except:
+            pass
+        try:
+            project_object.title_name = post_param['title_name']
+        except:
+            pass
+        try:
+            project_object.discipline = post_param['discipline']
+        except:
+            pass
         project_object.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -249,7 +264,10 @@ class ReadProjects(APIView):
                     "team" : project_object.team,
                     "image_count_authored" : project_object.image_count_authored,
                     "date_delivered" : project_object.date_delivered,
-                    "created_by" : project_object.created_by.email
+                    "created_by" : project_object.created_by.email,
+                    "discipline" : project_object.discipline,
+                    "title_name" : project_object.title_name,
+                    "project_complexity" : project_object.project_complexity
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)

@@ -299,8 +299,8 @@ class ReadClients(APIView):
             response_object.append(
                 {
                     "client_id" : client_object.id,
-                    "client_name" : client_object.client_name, 
-                    "client_code" : client_object.client_code
+                    "viewValue" : client_object.client_name, 
+                    "value" : client_object.client_code
                 }
             )
         return Response({"result" : response_object}, status = status.HTTP_200_OK)
@@ -368,8 +368,8 @@ class ReadDeliveryOwners(APIView):
             response_object.append(
                 {
                     "delivery_owner_id" : delivery_owner_object.id,
-                    "name" : delivery_owner_object.name,
-                    "email" : delivery_owner_object.email
+                    "viewValue" : delivery_owner_object.name,
+                    "value" : delivery_owner_object.email
                 }
             )
         return Response({"result" : response_object}, status = status.HTTP_200_OK)
@@ -1012,3 +1012,21 @@ class DeleteFinance(APIView):
             return Response(status = status.HTTP_200_OK)
         else:
             return Response({"error" : "No such finance object exists."}, status = status.HTTP_417_EXPECTATION_FAILED)
+
+class ReadPMSProjectsDropdown(APIView):
+    '''
+    GET MEthod to get PMS Projects dropdown data.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        a = []
+        projects = PMSProject.object.all()
+        for i in projects:
+            a.append(
+                {
+                    "id" : i.id,
+                    "viewValue" : i.project_name,
+                    "value" : i.id,
+                }
+            )
+        return Response({"result" : a}, status=status.HTTP_200_OK)

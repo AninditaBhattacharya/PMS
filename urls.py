@@ -39,4 +39,5 @@ urlpatterns = [
     url(r'^update_finance/', views.UpdateFinance.as_view()),
     url(r'^read_finances/', views.ReadFinances.as_view()),
     url(r'^delete_finance/', views.DeleteFinance.as_view()),
+    url(r'^projects_dropdown/', views.ReadPMSProjectsDropdown.as_view()),
 ]

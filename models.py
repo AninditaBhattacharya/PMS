@@ -123,3 +123,14 @@ class UserType(models.Model):
     is_superadmin = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_assosciate_admin = models.BooleanField(default=False)
+
+class Segregate(models.Model):
+    project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
+    title_name = models.CharField(max_length=1000, null=False, blank=False)
+    machine_image_count_proposed = models.IntegerField(default=0)
+    manual_image_count_proposed = models.IntegerField(default=0)
+    machine_image_count_delivered = models.IntegerField(default = 0)
+    manual_image_count_delivered = models.IntegerField(default = 0)
+    machine_accuracy = models.FloatField(default=0)
+
+

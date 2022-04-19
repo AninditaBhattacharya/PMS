@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
-from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, UserType
+from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType
 from datetime import datetime
 from dateutil import parser as datetime_parser
 
@@ -1020,7 +1020,7 @@ class ReadPMSProjectsDropdown(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         a = []
-        projects = PMSProject.object.all()
+        projects = PMSProject.objects.all()
         for i in projects:
             a.append(
                 {
@@ -1030,3 +1030,27 @@ class ReadPMSProjectsDropdown(APIView):
                 }
             )
         return Response({"result" : a}, status=status.HTTP_200_OK)
+
+class CreateSegregation(APIView):
+    '''
+    POST Method to create a Segregate Class.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        project_id = post_param['project_id']
+        projects_objects = PMSProject.objects.filter(id = project_id)
+        if len(projects_objects):
+            project_object = projects_objects[0]
+            segregate_object = Segregate()
+            segregate_object.project = project_object
+            segregate_object.title_name = post_param['title_name']
+            segregate_object.machine_image_count_proposed = int(post_param['machine_image_count_proposed'])
+            segregate_object.machine_image_count_delivered = int(post_param['machine_image_count_delivered'])
+            segregate_object.manual_image_count_delivered = int(post_param['manual_image_count_delivered'])
+            segregate_object.machine_image_count_proposed = int(post_param['machine_image_count_proposed'])
+            segregate_object.machine_accuracy  = float(post_param['machine_accuracy'])
+            segregate_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "Invalid Project ID"}, status=status.HTTP_400_BAD_REQUEST)

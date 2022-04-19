@@ -1069,3 +1069,6 @@ class CreateSegregation(APIView):
             return Response(status = status.HTTP_200_OK)
         else:
             return Response({"error" : "Invalid Project ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+            

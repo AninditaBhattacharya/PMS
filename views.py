@@ -1,7 +1,3 @@
-from ast import expr_context
-from curses.ascii import US
-from pydoc import cli
-from sys import api_version
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -105,7 +101,7 @@ class CreateProject(APIView):
                 project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
-                current_year = datetime.date.today().year
+                current_year = datetime.date.today.year
                 counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
                 if len(counter_objects):
                     counter_object = counter_objects[0]

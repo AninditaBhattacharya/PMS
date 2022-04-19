@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
 from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType
-from datetime import datetime
+from datetime import date
 from dateutil import parser as datetime_parser
 
 class CreateUserPMS(APIView):
@@ -101,7 +101,7 @@ class CreateProject(APIView):
                 project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
-                current_year = datetime.date.today.year
+                current_year = date.today().year
                 counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
                 if len(counter_objects):
                     counter_object = counter_objects[0]
@@ -507,7 +507,7 @@ class CreateCounter(APIView):
             discipline_objects = Discipline.objects.filter(discipline_code = discipline_code)
             if len(discipline_objects):
                 discipline_object = discipline_objects[0]
-                year = datetime.date.today().year
+                year = date.today().year
                 counter = post_param['counter']
                 counter_object = Counter()
                 counter_object.client = client_object

@@ -918,9 +918,12 @@ class CreateFinance(APIView):
             finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
             finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
             finance_object.money_in = float(post_param['money_in'])
-            up_file = request.FILES['files']
-            file_path = "media/" + handle_file_upload(up_file)
-            finance_object.po_file = file_path
+            try:
+                up_file = request.FILES['files']
+                file_path = "media/" + handle_file_upload(up_file)
+                finance_object.po_file = file_path
+            except:
+                finance_object.po_file = "NONE"
             finance_object.save()
             return Response(status = status.HTTP_200_OK)
         else:

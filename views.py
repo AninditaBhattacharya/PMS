@@ -53,7 +53,7 @@ class CreateProject(APIView):
         client_objects = Client.objects.filter(client_code = client_code)
         if len(client_objects):
             client_object = client_objects[0]
-            project_name = post_param['project_name']
+            #project_name = post_param['project_name']
             client_poc = post_param['client_poc']
             client_poc_email = post_param['client_poc_email']
             delivery_owner_email = post_param['delivery_owner_email']
@@ -86,7 +86,7 @@ class CreateProject(APIView):
                 user_object = request.user
                 project_object = PMSProject()
                 project_object.client = client_object
-                project_object.project_name = project_name
+                #project_object.project_name = project_name
                 project_object.client_poc = client_poc
                 project_object.client_poc_email = client_poc_email
                 project_object.delivery_owner = delivery_owner_object
@@ -105,6 +105,22 @@ class CreateProject(APIView):
                 project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
+                current_year = datetime.date.today().year
+                counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
+                if len(counter_objects):
+                    counter_object = counter_objects[0]
+                    project_name = client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + str(counter_object.counter)
+                    counter_object.counter += 1
+                    counter_object.save()
+                else:
+                    counter_object = Counter()
+                    counter_object.client = client_object
+                    counter_object.discipline = discipline_object
+                    counter_object.year = current_year
+                    counter_object.counter = 0
+                    project_name =  client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + "00"
+                    counter_object.save()
+                project_object.project_name = project_name
                 project_object.save()
                 return Response(status=status.HTTP_200_OK)
             else:
@@ -269,7 +285,7 @@ class ReadProjects(APIView):
                     "image_count_authored" : project_object.image_count_authored,
                     "date_delivered" : project_object.date_delivered,
                     "created_by" : project_object.created_by.email,
-                    "discipline" : project_object.discipline,
+                    "discipline" : project_object.discipline.discipline_name,
                     "title_name" : project_object.title_name,
                     "project_complexity" : project_object.project_complexity
                 }

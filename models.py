@@ -68,7 +68,7 @@ class Counter(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     year = models.IntegerField(blank=False, null=False)
-    counter = models.IntegerField(blank=False, null=False)
+    counter = models.IntegerField(default=0)
 
 class DayCountTracker(models.Model):
     '''

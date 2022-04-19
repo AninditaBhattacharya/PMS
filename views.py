@@ -1049,6 +1049,7 @@ class ReadPMSProjectsDropdown(APIView):
                     "id" : i.id,
                     "viewValue" : i.project_name,
                     "value" : i.id,
+                    "title_name" : i.title_name
                 }
             )
         return Response({"result" : a}, status=status.HTTP_200_OK)

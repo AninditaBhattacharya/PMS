@@ -77,6 +77,8 @@ class DayCountTracker(models.Model):
     project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
     image_count = models.IntegerField(default=0)
     image_count_authored = models.IntegerField(default=0)
+    #email
+    #date
 
 class BufferImages(models.Model):
     '''

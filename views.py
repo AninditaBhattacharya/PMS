@@ -1049,7 +1049,13 @@ class ReadPMSProjectsDropdown(APIView):
                     "id" : i.id,
                     "viewValue" : i.project_name,
                     "value" : i.id,
-                    "title_name" : i.title_name
+                    "title_name" : i.title_name,
+                    "client_code" : i.client.client_code,
+                    "client_poc" : i.client_poc,
+                    "client_poc_email" : i.client_poc_email,
+                    "discipline_id" : i.discipline.id,
+                    "project_type_alttext" : i.project_type.is_alttext,
+                    "project_type_remediation" : i.project_type.is_remediation
                 }
             )
         return Response({"result" : a}, status=status.HTTP_200_OK)

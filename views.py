@@ -434,9 +434,8 @@ class ReadDisciplines(APIView):
         for discipline_object in discipline_objects:
             response_object.append(
                 {
-                    "discipline_id" : discipline_object.id,
-                    "discipline_name" : discipline_object.discipline_name,
-                    "discipline_code" : discipline_object.discipline_code
+                    "value" : discipline_object.id,
+                    "viewValue" : str(discipline_object.discipline_code) + " - " + str(discipline_object.discipline_name),
                 }
             )
         return Response({"result" : response_object}, status = status.HTTP_200_OK)

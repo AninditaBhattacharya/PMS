@@ -114,6 +114,7 @@ class Finance(models.Model):
     number_of_days_since_invoiced = models.IntegerField(default=0)
     expected_money_in_date = models.DateField()
     money_in = models.FloatField(default=0.0)
+    po_file = models.CharField(max_length=1000)
 
 class UserType(models.Model):
     '''

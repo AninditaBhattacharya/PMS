@@ -9,6 +9,7 @@ from accounts.views import create_userprofile
 from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType
 from datetime import date
 from dateutil import parser as datetime_parser
+from utils.views import handle_file_upload
 
 class CreateUserPMS(APIView):
     '''
@@ -917,6 +918,9 @@ class CreateFinance(APIView):
             finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
             finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
             finance_object.money_in = float(post_param['money_in'])
+            up_file = request.FILES['files']
+            file_path = "media/" + handle_file_upload(up_file)
+            finance_object.po_file = file_path
             finance_object.save()
             return Response(status = status.HTTP_200_OK)
         else:
@@ -1071,4 +1075,3 @@ class CreateSegregation(APIView):
             return Response({"error" : "Invalid Project ID"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-            

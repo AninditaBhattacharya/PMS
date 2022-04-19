@@ -57,7 +57,7 @@ class PMSProject(models.Model):
     image_count_authored = models.IntegerField(default=0)
     date_delivered = models.DateField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    discipline = models.CharField(max_length=1000, blank=False, null=False)
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     title_name = models.CharField(max_length=1000, null=True, blank=True)
     project_complexity = models.CharField(max_length=1000, null=False, blank=False)
 

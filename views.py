@@ -100,7 +100,9 @@ class CreateProject(APIView):
                 project_object.image_count_authored = image_count_authored
                 project_object.date_delivered = date_delivered
                 project_object.created_by = user_object
-                project_object.discipline = post_param['discipline']
+                discipline_id = post_param['discipline_id']
+                discipline_object = Discipline.objects.get(pk = discipline_id)
+                project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
                 project_object.save()
@@ -212,7 +214,9 @@ class UpdateProject(APIView):
         except:
             pass
         try:
-            project_object.discipline = post_param['discipline']
+            discipline_id = post_param['discipline_id']
+            discipline_object = Discipline.objects.get(pk = discipline_id)
+            project_object.discipline = discipline_object
         except:
             pass
         project_object.save()

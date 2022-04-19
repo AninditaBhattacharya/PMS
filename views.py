@@ -101,7 +101,7 @@ class CreateProject(APIView):
                 project_object.date_delivered = date_delivered
                 project_object.created_by = user_object
                 project_object.discipline = post_param['discipline']
-                project_name.project_complexity = post_param['project_complexity']
+                project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
                 project_object.save()
                 return Response(status=status.HTTP_200_OK)

@@ -910,14 +910,29 @@ class CreateFinance(APIView):
             finance_object.project = project_object
             finance_object.project_quote = float(post_param['project_quote'])
             finance_object.project_currency = post_param['project_currency']
-            finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
+            try:
+                finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
+            except:
+                pass
             finance_object.po_amount = float(post_param['po_amount'])
             finance_object.po_number = post_param['po_number']
             finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
-            finance_object.amount_invoiced = float(post_param['amount_invoiced'])
-            finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
-            finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
-            finance_object.money_in = float(post_param['money_in'])
+            try:
+                finance_object.amount_invoiced = float(post_param['amount_invoiced'])
+            except:
+                pass
+            try:
+                finance_object.number_of_days_since_invoiced = int(post_param['number_of_days_since_invoiced'])
+            except:
+                pass
+            try:
+                finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
+            except:
+                pass
+            try:
+                finance_object.money_in = float(post_param['money_in'])
+            except:
+                pass
             try:
                 up_file = request.FILES['files']
                 file_path = "media/" + handle_file_upload(up_file)

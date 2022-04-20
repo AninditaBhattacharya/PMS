@@ -106,15 +106,16 @@ class Finance(models.Model):
     DB Class to handle all the Project Finances.
     '''
     project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
+    title_name = models.CharField(max_length=10000, null=False, blank=False)
     project_quote = models.FloatField(default=0.0)
     project_currency = models.CharField(max_length=100, blank=False, null=False)
     expected_invoicing_date = models.DateField()
     po_amount = models.FloatField(default=0.0)
     po_number = models.CharField(max_length=1000, blank=False, null=False)
-    date_invoiced = models.DateField()
+    date_invoiced = models.DateField(blank=True, null=True)
     amount_invoiced = models.FloatField(default=0.0)
     number_of_days_since_invoiced = models.IntegerField(default=0)
-    expected_money_in_date = models.DateField()
+    expected_money_in_date = models.DateField(blank=True, null=True)
     money_in = models.FloatField(default=0.0)
     po_file = models.CharField(max_length=1000)
 

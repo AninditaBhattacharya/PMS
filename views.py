@@ -908,15 +908,22 @@ class CreateFinance(APIView):
             project_object = project_objects[0]
             finance_object = Finance()
             finance_object.project = project_object
-            finance_object.project_quote = float(post_param['project_quote'])
-            finance_object.project_currency = post_param['project_currency']
+            try:
+                finance_object.project_quote = float(post_param['project_quote'])
+            except:
+                finance_object.project_currency = post_param['project_currency']
             try:
                 finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
             except:
                 pass
-            finance_object.po_amount = float(post_param['po_amount'])
-            finance_object.po_number = post_param['po_number']
-            finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
+            try:
+                finance_object.po_amount = float(post_param['po_amount'])
+            except:
+                pass
+            try:
+                finance_object.po_number = post_param['po_number']
+            except:
+                finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
             try:
                 finance_object.amount_invoiced = float(post_param['amount_invoiced'])
             except:

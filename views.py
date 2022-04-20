@@ -272,6 +272,7 @@ class ReadProjects(APIView):
                     "client_poc" : project_object.client_poc,
                     "client_poc_email" : project_object.client_poc_email,
                     "delivery_owner_email" : project_object.delivery_owner.email,
+                    "delivery_owner_id" : project_object.delivery_owner.id,
                     "project_type_is_alttext" : project_object.project_type.is_alttext,
                     "project_type_is_remediation" : project_object.project_type.is_remediation,
                     "date_booked" : project_object.date_booked,
@@ -288,7 +289,8 @@ class ReadProjects(APIView):
                     "created_by" : project_object.created_by.email,
                     "discipline" : project_object.discipline.discipline_name,
                     "title_name" : project_object.title_name,
-                    "project_complexity" : project_object.project_complexity
+                    "project_complexity" : project_object.project_complexity,
+                    "discipline_id" : project_object.discipline.discipline_id
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)

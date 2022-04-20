@@ -119,7 +119,7 @@ class CreateProject(APIView):
                     counter_object.save()
                 project_object.project_name = project_name
                 project_object.save()
-                return Response(status=status.HTTP_200_OK)
+                return Response({"result" : project_object.project_name} ,status=status.HTTP_200_OK)
             else:
                 return Response({"error" : "No such Delivery Owner exists."}, status = status.HTTP_417_EXPECTATION_FAILED)
         else:

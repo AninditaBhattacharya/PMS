@@ -82,6 +82,10 @@ class CreateProject(APIView):
                 date_delivered = datetime_parser.parse(post_param['date_delivered'])
                 user_object = request.user
                 project_object = PMSProject()
+                try:
+                    project_object.parent_project_name = post_param['parent_project_name']
+                except:
+                    project_object.parent_project_name = None
                 project_object.client = client_object
                 #project_object.project_name = project_name
                 project_object.client_poc = client_poc

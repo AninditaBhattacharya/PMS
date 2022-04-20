@@ -42,24 +42,25 @@ class PMSProject(models.Model):
     '''
     DB Class to handle all the Project related information.
     '''
+    parent_project_name = models.CharField(max_length=1000, null=True, blank=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     project_name = models.CharField(max_length=1000, blank=True, null=True)
-    client_poc = models.CharField(max_length=1000, blank=False, null=False)
-    client_poc_email = models.EmailField(max_length=1000, blank=False, null=False)
+    client_poc = models.CharField(max_length=1000, blank=True, null=True)
+    client_poc_email = models.EmailField(max_length=1000, blank=True, null=True)
     delivery_owner = models.ForeignKey(DeliveryOwner, on_delete=models.CASCADE)
     project_type = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
     date_booked = models.DateField()
     doc_type = models.ForeignKey(DocType, on_delete=models.CASCADE)
-    estimated_date_of_delivery = models.DateField()
+    estimated_date_of_delivery = models.DateField(blank=True, null=True)
     image_count = models.IntegerField(default=0)
-    status = models.CharField(max_length=100, blank=False, null=False)
-    team = models.CharField(max_length=10000, blank=False, null=False)
+    status = models.CharField(max_length=100, blank=True, null=True)
+    team = models.CharField(max_length=10000, blank=True, null=True)
     image_count_authored = models.IntegerField(default=0)
-    date_delivered = models.DateField()
+    date_delivered = models.DateField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     title_name = models.CharField(max_length=1000, null=True, blank=True)
-    project_complexity = models.CharField(max_length=1000, null=False, blank=False)
+    project_complexity = models.CharField(max_length=1000, null=True, blank=True)
 
 class Counter(models.Model):
     '''

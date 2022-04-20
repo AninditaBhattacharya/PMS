@@ -268,6 +268,7 @@ class ReadProjects(APIView):
                 {
                     "project_id" : project_object.id,
                     "project_name" : project_object.project_name,
+                    "parent_project_name" : project_object.parent_project_name,
                     "client_code" : project_object.client.client_code,
                     "client_poc" : project_object.client_poc,
                     "client_poc_email" : project_object.client_poc_email,

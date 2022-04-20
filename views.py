@@ -291,7 +291,7 @@ class ReadProjects(APIView):
                     "discipline" : project_object.discipline.discipline_name,
                     "title_name" : project_object.title_name,
                     "project_complexity" : project_object.project_complexity,
-                    "discipline_id" : project_object.discipline.discipline_id
+                    "discipline_id" : project_object.discipline.id
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)

@@ -273,7 +273,7 @@ class ReadProjects(APIView):
                     "client_poc_email" : project_object.client_poc_email,
                     "delivery_owner_email" : project_object.delivery_owner.email,
                     "project_type_is_alttext" : project_object.project_type.is_alttext,
-                    "project_object_is_remediation" : project_object.project_type.is_remediation,
+                    "project_type_is_remediation" : project_object.project_type.is_remediation,
                     "date_booked" : project_object.date_booked,
                     "doc_type_docx" : project_object.doc_type.docx,
                     "doc_type_pdf" : project_object.doc_type.pdf,

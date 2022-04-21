@@ -110,7 +110,10 @@ class CreateProject(APIView):
                 counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
                 if len(counter_objects):
                     counter_object = counter_objects[0]
-                    project_name = client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + str(counter_object.counter)
+                    if counter_object.counter > 9:
+                        project_name = client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + str(counter_object.counter)
+                    else:
+                        project_name = client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + "0" + str(counter_object.counter)
                     counter_object.counter += 1
                     counter_object.save()
                 else:
@@ -918,7 +921,11 @@ class CreateFinance(APIView):
             try:
                 finance_object.project_quote = float(post_param['project_quote'])
             except:
+                pass
+            try:
                 finance_object.project_currency = post_param['project_currency']
+            except:
+                pass
             try:
                 finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
             except:
@@ -930,7 +937,11 @@ class CreateFinance(APIView):
             try:
                 finance_object.po_number = post_param['po_number']
             except:
+                pass
+            try:
                 finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
+            except:
+                pass
             try:
                 finance_object.amount_invoiced = float(post_param['amount_invoiced'])
             except:

@@ -138,4 +138,17 @@ class Segregate(models.Model):
     manual_image_count_delivered = models.IntegerField(default = 0)
     machine_accuracy = models.FloatField(default=0)
 
+class DailyImageTracker(models.Model):
+    project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
+    title_name = models.CharField(max_length=1000, null=False, blank=False)
+    expected_count = models.IntegerField(default=0)
+    delivered_count = models.IntegerField(default=0)
+    date = models.DateField(blank=True, null=True)
+    estimated_hours = models.IntegerField(default=0)
+    worked_hours = models.IntegerField(default=0)
+    work_type = models.CharField(max_length=1000, blank=False, null=False)
+    employee_type = models.CharField(max_length=1000, blank=False, null=False)
+    team_member = models.CharField(max_length=1000, blank=False, null=False)
+
+
 

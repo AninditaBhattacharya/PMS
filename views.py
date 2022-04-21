@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
-from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType
+from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker
 from datetime import date
 from dateutil import parser as datetime_parser
 from utils.views import handle_file_upload
@@ -1124,4 +1124,48 @@ class CreateSegregation(APIView):
         else:
             return Response({"error" : "Invalid Project ID"}, status=status.HTTP_400_BAD_REQUEST)
 
+class CreateDailyImageTracker(APIView):
+    '''
+    POST Method to create a Daily Image Tracker object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        daily_image_tracker_object = DailyImageTracker()
+        project_id = post_param['project_id']
+        project_objects = PMSProject.objects.filter(pk = project_id)
+        if len(project_objects):
+            project_object = project_objects[0]
+            daily_image_tracker_object.project = project_object
+            daily_image_tracker_object.title_name = post_param['title_name']
+            try:
+               daily_image_tracker_object.expected_count = int(post_param['expected_count'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.delivered_count = int(post_param['delivered_count'])  
+            except:
+                pass
+            try:
+                daily_image_tracker_object.date = datetime_parser.parse(post_param['date'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.estimated_hours = int(post_param['estimated_hours'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.worked_hours = int(post_param['worked_hours'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.work_type = int(post_param['work_type'])
+            except:
+                pass
+            daily_image_tracker_object.employee_type = post_param['employee_type']
+            daily_image_tracker_object.team_member = post_param['team_member']
+            daily_image_tracker_object.save()
+            return Response(status = status.HTTP_201_CREATED)
+        else:
+            return Response({"error" : "No such Project ID exists."}, status = status.HTTP_400_BAD_REQUEST)
 

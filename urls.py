@@ -42,4 +42,5 @@ urlpatterns = [
     url(r'^projects_dropdown/', views.ReadPMSProjectsDropdown.as_view()),
     url(r'^create_segregation/', views.CreateSegregation.as_view()),
     url(r'^create_daily_image_tracker/', views.CreateDailyImageTracker.as_view()),
+    url(r'^read_daily_image_trackers/', views.ReadDailyImageTrackers.as_view()),
 ]

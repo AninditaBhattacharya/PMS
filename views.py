@@ -1169,3 +1169,29 @@ class CreateDailyImageTracker(APIView):
         else:
             return Response({"error" : "No such Project ID exists."}, status = status.HTTP_400_BAD_REQUEST)
 
+class ReadDailyImageTrackers(APIView):
+    '''
+    GET Method to read al Daily Image Trackers.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        res = []
+        daily_image_tracker_objects = DailyImageTracker.objects.all()
+        for i in daily_image_tracker_objects:
+            res.append(
+                {
+                    "project_id" : i.project.id,
+                    "title_name" : i.title_name,
+                    "expected_count" : i.expected_count,
+                    "delivered_count" : i.delivered_count,
+                    "date" : i.date,
+                    "estimated_hours" : i.estimated_hours,
+                    "worked_hours" : i.worked_hours,
+                    "work_type" : i.work_type,
+                    "employee_type" : i.employee_type,
+                    "team_member" : i.team_member
+                }
+            )
+        return Response({"result" : res}, status = status.HTTP_200_OK)
+
+

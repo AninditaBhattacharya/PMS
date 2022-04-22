@@ -1203,7 +1203,7 @@ class PermissionLevel(APIView):
     permission_level = (permissions.IsAuthenticated,)
     def get(self, request):
         user = request.user
-        user_type_objects = UserType.obejcts.filter(user = user)
+        user_type_objects = UserType.objects.filter(user = user)
         if len(user_type_objects):
             user_type_object = user_type_objects[0]
             if user_type_object.is_superadmin:

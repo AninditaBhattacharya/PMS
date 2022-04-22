@@ -43,4 +43,5 @@ urlpatterns = [
     url(r'^create_segregation/', views.CreateSegregation.as_view()),
     url(r'^create_daily_image_tracker/', views.CreateDailyImageTracker.as_view()),
     url(r'^read_daily_image_trackers/', views.ReadDailyImageTrackers.as_view()),
+    url(r'^check_permissions/', views.PermissionLevel.as_view()),
 ]

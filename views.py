@@ -1172,7 +1172,7 @@ class CreateDailyImageTracker(APIView):
 
 class ReadDailyImageTrackers(APIView):
     '''
-    GET Method to read al Daily Image Trackers.
+    GET Method to read all Daily Image Trackers.
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -1196,4 +1196,23 @@ class ReadDailyImageTrackers(APIView):
             )
         return Response({"result" : res}, status = status.HTTP_200_OK)
 
-
+class PermissionLevel(APIView):
+    '''
+    GET Method to check permissions of a user.
+    '''
+    permission_level = (permissions.IsAuthenticated,)
+    def get(self, request):
+        user = request.user
+        user_type_objects = UserType.obejcts.filter(user = user)
+        if len(user_type_objects):
+            user_type_object = user_type_objects[0]
+            if user_type_object.is_superadmin:
+                return Response({"result" : "Super Admin"}, status=status.HTTP_200_OK)
+            elif user_type_object.is_admin:
+                return Response({"result" : "Admin"}, status = status.HTTP_200_OK)
+            elif user_type_object.is_assosciate_admin:
+                return Response({"result" : "Operator"}, status = status.HTTP_200_OK)
+            else:
+                return Response({"result" : "No Permission"}, status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such User exists. Please create a new user from Admin panel."}, status = status.HTTP_400_BAD_REQUEST)

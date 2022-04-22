@@ -982,6 +982,7 @@ class ReadFinances(APIView):
                 {
                     "finance_id" : finance_object.id,
                     "project_id" : finance_object.project.id,
+                    "project_name" : finance_object.project.project_name,
                     "project_quote" : finance_object.project_quote,
                     "project_currency" : finance_object.project_currency,
                     "expected_invoicing_date" : finance_object.expected_invoicing_date,

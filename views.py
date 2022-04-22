@@ -37,6 +37,7 @@ class CreateUserPMS(APIView):
         user_type_object.is_superadmin = is_super_admin
         user_type_object.is_admin = is_admin
         user_type_object.is_assosciate_admin = is_assosciate_admin
+        user_type_object.save()
         return Response(user_serializer.data, status = status.HTTP_201_CREATED)
 
 class CreateProject(APIView):

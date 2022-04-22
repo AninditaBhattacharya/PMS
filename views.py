@@ -1182,6 +1182,7 @@ class ReadDailyImageTrackers(APIView):
             res.append(
                 {
                     "project_id" : i.project.id,
+                    "project_name" : i.project.project_name,
                     "title_name" : i.title_name,
                     "expected_count" : i.expected_count,
                     "delivered_count" : i.delivered_count,

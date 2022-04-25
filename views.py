@@ -1166,6 +1166,7 @@ class CreateDailyImageTracker(APIView):
                 pass
             daily_image_tracker_object.employee_type = post_param['employee_type']
             daily_image_tracker_object.team_member = post_param['team_member']
+            daily_image_tracker_object.status = post_param['status']
             daily_image_tracker_object.save()
             return Response(status = status.HTTP_201_CREATED)
         else:
@@ -1192,7 +1193,8 @@ class ReadDailyImageTrackers(APIView):
                     "worked_hours" : i.worked_hours,
                     "work_type" : i.work_type,
                     "employee_type" : i.employee_type,
-                    "team_member" : i.team_member
+                    "team_member" : i.team_member,
+                    "status" : i.status
                 }
             )
         return Response({"result" : res}, status = status.HTTP_200_OK)

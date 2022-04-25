@@ -149,6 +149,7 @@ class DailyImageTracker(models.Model):
     work_type = models.CharField(max_length=1000, blank=False, null=False)
     employee_type = models.CharField(max_length=1000, blank=False, null=False)
     team_member = models.CharField(max_length=1000, blank=False, null=False)
+    status = models.CharField(max_length=1000, blank=False, null=False)
 
 
 

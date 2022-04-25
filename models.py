@@ -55,7 +55,7 @@ class PMSProject(models.Model):
     project_type = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
     date_booked = models.DateField()
     doc_type = models.ForeignKey(DocType, on_delete=models.CASCADE)
-    estimated_date_of_delivery = models.CharField(max_length=100000, bank=True, null=True)
+    estimated_date_of_delivery = models.CharField(max_length=100000, blank=True, null=True)
     image_count = models.IntegerField(default=0)
     status = models.CharField(max_length=100, blank=True, null=True)
     team = models.CharField(max_length=10000, blank=True, null=True)

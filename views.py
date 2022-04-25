@@ -1205,7 +1205,8 @@ class ReadDailyImageTrackers(APIView):
                     "work_type" : i.work_type,
                     "employee_type" : i.employee_type,
                     "team_member" : i.team_member,
-                    "status" : i.status
+                    "status" : i.status,
+                    "daily_image_count_tracker_id" : i.id
                 }
             )
         return Response({"result" : res}, status = status.HTTP_200_OK)

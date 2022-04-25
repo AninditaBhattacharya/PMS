@@ -107,6 +107,9 @@ class CreateProject(APIView):
                 project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
+                client_organization_id = post_param['client_organization_id']
+                client_organization_object = ClientOrganization.objects.get(pk = client_organization_id)
+                project_object.client_organization = client_organization_object
                 current_year = date.today().year
                 counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
                 if len(counter_objects):
@@ -240,6 +243,12 @@ class UpdateProject(APIView):
             project_object.discipline = discipline_object
         except:
             pass
+        try:
+            client_organization_id = post_param['client_organization_id']
+            client_organization_object = ClientOrganization.objects.get(pk = client_organization_id)
+            project_object.client_organization = client_organization_object
+        except:
+            pass
         project_object.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -295,7 +304,8 @@ class ReadProjects(APIView):
                     "discipline" : project_object.discipline.discipline_name,
                     "title_name" : project_object.title_name,
                     "project_complexity" : project_object.project_complexity,
-                    "discipline_id" : project_object.discipline.id
+                    "discipline_id" : project_object.discipline.id,
+                    "client_organization" : project_object.client_organization.client_organization_name,
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)

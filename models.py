@@ -38,6 +38,10 @@ class Discipline(models.Model):
     discipline_name = models.CharField(max_length=100, blank=False, null=False)
     discipline_code = models.CharField(max_length=100, blank=False, null=False)
 
+class ClientOrganization(models.Model):
+    client_organization_name = models.CharField(max_length=1000, null=False, blank=False)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE) 
+
 class PMSProject(models.Model):
     '''
     DB Class to handle all the Project related information.
@@ -61,6 +65,7 @@ class PMSProject(models.Model):
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     title_name = models.CharField(max_length=1000, null=True, blank=True)
     project_complexity = models.CharField(max_length=1000, null=True, blank=True)
+    client_organization = models.ForeignKey(ClientOrganization, on_delete=models.CASCADE)
 
 class Counter(models.Model):
     '''
@@ -151,8 +156,6 @@ class DailyImageTracker(models.Model):
     team_member = models.CharField(max_length=1000, blank=False, null=False)
     status = models.CharField(max_length=1000, blank=False, null=False)
 
-class ClientOrganization(models.Model):
-    client_organization_name = models.CharField(max_length=1000, null=False, blank=False)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)    
+   
 
 

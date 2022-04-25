@@ -1243,7 +1243,7 @@ class ReadAllClientOrganization(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         res = []
-        client_organization_objects = ClientOrganization()
+        client_organization_objects = ClientOrganization.objects.all()
         for i in client_organization_objects:
             res.append(
                 {

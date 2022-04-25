@@ -10,6 +10,7 @@ from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner
 from datetime import date
 from dateutil import parser as datetime_parser
 from utils.views import handle_file_upload
+import json
 
 class CreateUserPMS(APIView):
     '''
@@ -75,7 +76,7 @@ class CreateProject(APIView):
                 doc_type_object.pptx = doc_type_pptx
                 doc_type_object.xlsx = doc_type_xlsx
                 doc_type_object.save()
-                estimated_date_of_delivery = datetime_parser.parse(post_param['estimated_date_of_delivery'])
+                estimated_date_of_delivery = json.dumps(post_param['estimated_date_of_delivery'])
                 image_count = post_param['image_count']
                 status_project = post_param['status']
                 team = post_param['team']
@@ -200,7 +201,7 @@ class UpdateProject(APIView):
         except:
             pass
         try:
-            estimated_date_of_delivery = post_param['estimated_date_of_delivery']
+            estimated_date_of_delivery = json.dumps(post_param['estimated_date_of_delivery'])
             project_object.estimated_date_of_delivery = estimated_date_of_delivery
         except:
             pass
@@ -294,7 +295,7 @@ class ReadProjects(APIView):
                     "doc_type_pdf" : project_object.doc_type.pdf,
                     "doc_type_pptx" : project_object.doc_type.pptx,
                     "doc_type_xlsx" : project_object.doc_type.xlsx,
-                    "estimated_date_of_delivery" : project_object.estimated_date_of_delivery,
+                    "estimated_date_of_delivery" : json.loads(project_object.estimated_date_of_delivery),
                     "image_count" : project_object.image_count, 
                     "status" : project_object.status,
                     "team" : project_object.team,

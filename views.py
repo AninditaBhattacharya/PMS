@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
-from pms.models import PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker
+from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker
 from datetime import date
 from dateutil import parser as datetime_parser
 from utils.views import handle_file_upload
@@ -1219,3 +1219,38 @@ class PermissionLevel(APIView):
                 return Response({"result" : "No Permission"}, status = status.HTTP_200_OK)
         else:
             return Response({"error" : "No such User exists. Please create a new user from Admin panel."}, status = status.HTTP_400_BAD_REQUEST)
+
+class CreateClientOrganization(APIView):
+    '''
+    POST Method to create a Client Organization realated to a client.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_organization_name = post_param['client_organization_name']
+        client_id = post_param['client_id']
+        client_object = Client.objects.get(pk = client_id)
+        client_organization_object = ClientOrganization()
+        client_organization_object.client_organization_name = client_organization_name
+        client_organization_object.client = client_object
+        client_organization_object.save()
+        return Response(status = status.HTTP_200_OK)
+    
+class ReadAllClientOrganization(APIView):
+    '''
+    GET Method to read all Client Organizations. 
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        res = []
+        client_organization_objects = ClientOrganization()
+        for i in client_organization_objects:
+            res.append(
+                {
+                    "client_organization_id" : i.id,
+                    "client_organization_name" : i.client_organization_name,
+                    "client_code" : i.client.client_code,
+                    "client_id" : i.client.id
+                }
+            )
+        return Response({"result" : res}, status=status.HTTP_200_OK)

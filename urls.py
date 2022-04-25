@@ -44,4 +44,6 @@ urlpatterns = [
     url(r'^create_daily_image_tracker/', views.CreateDailyImageTracker.as_view()),
     url(r'^read_daily_image_trackers/', views.ReadDailyImageTrackers.as_view()),
     url(r'^check_permissions/', views.PermissionLevel.as_view()),
+    url(r'^create_client_organization/', views.CreateClientOrganization.as_view()),
+    url(r'^read_client_organizations/', views.ReadAllClientOrganization.as_view()),
 ]

@@ -151,5 +151,8 @@ class DailyImageTracker(models.Model):
     team_member = models.CharField(max_length=1000, blank=False, null=False)
     status = models.CharField(max_length=1000, blank=False, null=False)
 
+class ClientOrganization(models.Model):
+    client_organization_name = models.CharField(max_length=1000, null=False, blank=False)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)    
 
 

@@ -306,6 +306,7 @@ class ReadProjects(APIView):
                     "project_complexity" : project_object.project_complexity,
                     "discipline_id" : project_object.discipline.id,
                     "client_organization" : project_object.client_organization.client_organization_name,
+                    "client_organization_id" : project_object.client_organization.id
                 }
             )
         return Response({"result" : response_object}, status=status.HTTP_200_OK)
@@ -1264,3 +1265,65 @@ class ReadAllClientOrganization(APIView):
                 }
             )
         return Response({"result" : res}, status=status.HTTP_200_OK)
+
+class UpdateDailyImageTracker(APIView):
+    '''
+    POST Method to update a Daily Image Tracker Object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        daily_image_tracker_id = post_param['daily_image_tracker_id']
+        daily_image_tracker_objects = DailyImageTracker.objects.filter(pk = daily_image_tracker_id)
+        if len(daily_image_tracker_objects):
+            daily_image_tracker_object = daily_image_tracker_objects[0]
+            try:
+                project_id = post_param['project_id']
+                project_object = PMSProject.obejcts.get(pk = project_id)
+                daily_image_tracker_object.project = project_object
+            except:
+                pass
+            try:
+                daily_image_tracker_object.title_name = post_param['title_name']
+            except:
+                pass
+            try:
+                daily_image_tracker_object.expected_count = int(post_param['expected_count'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.delivered_count = int(post_param['delivered_count'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.date = datetime_parser.parse(post_param['date'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.estimated_hours = int(post_param['estimated_hours'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.worked_hours = int(post_param['worked_hours'])
+            except:
+                pass
+            try:
+                daily_image_tracker_object.work_type = post_param['work_type']
+            except:
+                pass
+            try:
+                daily_image_tracker_object.employee_type = post_param['employee_type']
+            except:
+                pass
+            try:
+                daily_image_tracker_object.team_member = post_param['team_member']
+            except:
+                pass
+            try:
+                daily_image_tracker_object.status = post_param['status']
+            except:
+                pass
+            daily_image_tracker_object.save()
+            return Response(status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "No such Daily Image Tracker Object for given ID."}, status=status.HTTP_400_BAD_REQUEST)

@@ -1039,7 +1039,7 @@ class UpdateFinance(APIView):
             except:
                 pass
             try:
-                finance_object.expected_invoicing_date = post_param['expected_invoicing_date']
+                finance_object.expected_invoicing_date = datetime_parser.parse(post_param['expected_invoicing_date'])
             except:
                 pass
             try:
@@ -1051,7 +1051,7 @@ class UpdateFinance(APIView):
             except:
                 pass
             try:
-                finance_object.date_invoiced = post_param['date_invoiced']
+                finance_object.date_invoiced = datetime_parser.parse(post_param['date_invoiced'])
             except:
                 pass
             try:
@@ -1063,7 +1063,7 @@ class UpdateFinance(APIView):
             except:
                 pass
             try:
-                finance_object.expected_money_in_date = post_param['expected_money_in_date']
+                finance_object.expected_money_in_date = datetime_parser.parse(post_param['expected_money_in_date'])
             except:
                 pass
             try:

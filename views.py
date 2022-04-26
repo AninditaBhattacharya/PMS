@@ -1005,7 +1005,8 @@ class ReadFinances(APIView):
                     "amount_invoiced" : finance_object.amount_invoiced,
                     "number_of_days_since_invoiced" : finance_object.number_of_days_since_invoiced,
                     "expected_money_in_date" : finance_object.expected_money_in_date,
-                    "money_in" : finance_object.money_in
+                    "money_in" : finance_object.money_in,
+                    "title_name" : finance_object.project.title_name
                 }
             )
         return Response({"result" : response_object}, status = status.HTTP_200_OK)

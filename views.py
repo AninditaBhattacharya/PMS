@@ -278,6 +278,8 @@ class ReadProjects(APIView):
         project_objects = PMSProject.objects.all()
         response_object = []
         for project_object in project_objects:
+            teams = project_object.team
+            teams_array = teams[1:-1].split(",")
             response_object.append(
                 {
                     "project_id" : project_object.id,
@@ -298,7 +300,7 @@ class ReadProjects(APIView):
                     "estimated_date_of_delivery" : json.loads(project_object.estimated_date_of_delivery),
                     "image_count" : project_object.image_count, 
                     "status" : project_object.status,
-                    "team" : json.loads(project_object.team),
+                    "team" : teams_array,
                     "image_count_authored" : project_object.image_count_authored,
                     "date_delivered" : project_object.date_delivered,
                     "created_by" : project_object.created_by.email,

@@ -1350,7 +1350,7 @@ class DownloadProject(APIView):
         doc_type = []
         estimated_date_of_delivery = []
         image_count = []
-        status = []
+        statuss = []
         team = []
         image_count_authored = []
         date_delivered = []
@@ -1368,7 +1368,7 @@ class DownloadProject(APIView):
             date_booked.append(i.date_booked)
             estimated_date_of_delivery.append(i.estimated_date_of_delivery)
             image_count.append(i.image_count)
-            status.append(i.status)
+            statuss.append(i.status)
             team.append(i.team)
             image_count_authored.append(i.image_count_authored)
             date_delivered.append(i.date_delivered)
@@ -1386,7 +1386,7 @@ class DownloadProject(APIView):
         df['date_booked'] = date_booked
         df['estimated_date_of_delivery'] = estimated_date_of_delivery
         df['image_count'] = image_count
-        df['status'] = status
+        df['status'] = statuss
         df['team'] = team
         df['image_count_authored'] = image_count_authored
         df['date_delivered'] = date_delivered

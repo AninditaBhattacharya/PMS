@@ -228,7 +228,7 @@ class UpdateProject(APIView):
         except:
             pass
         try:
-            date_delivered = post_param['date_delivered']
+            date_delivered = datetime_parser.parse(post_param['date_delivered'])
             project_object.date_delivered = date_delivered
         except:
             pass

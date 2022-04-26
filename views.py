@@ -1,3 +1,4 @@
+from pydoc import cli
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from datetime import date
 from dateutil import parser as datetime_parser
 from utils.views import handle_file_upload
 import json
+import pandas as pd
 
 class CreateUserPMS(APIView):
     '''
@@ -1332,3 +1334,69 @@ class UpdateDailyImageTracker(APIView):
             return Response(status = status.HTTP_200_OK)
         else:
             return Response({"error" : "No such Daily Image Tracker Object for given ID."}, status=status.HTTP_400_BAD_REQUEST)
+
+class DownloadProject(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        objects = PMSProject.objects.all()
+        parent_project_name = []
+        client = []
+        project_name = []
+        client_poc = []
+        client_poc_email = []
+        delivery_owner = []
+        project_type = []
+        date_booked = []
+        doc_type = []
+        estimated_date_of_delivery = []
+        image_count = []
+        status = []
+        team = []
+        image_count_authored = []
+        date_delivered = []
+        discipline = []
+        title_name = []
+        project_completxity = []
+        client_organization = []
+        for i in objects:
+            parent_project_name.append(i.parent_project_name)
+            client.append(i.client.client_code)
+            project_name.append(i.project_name)
+            client_poc.append(i.client_poc)
+            client_poc_email.append(i.client_poc_email)
+            delivery_owner.append(i.delivery_owner)
+            date_booked.append(i.date_booked)
+            estimated_date_of_delivery.append(i.estimated_date_of_delivery)
+            image_count.append(i.image_count)
+            status.append(i.status)
+            team.append(i.team)
+            image_count_authored.append(i.image_count_authored)
+            date_delivered.append(i.date_delivered)
+            discipline.append(i.discipline)
+            title_name.append(i.title_name)
+            project_completxity.append(i.project_complexity)
+            client_organization.append(i.client_organization)
+        df = pd.DataFrame()
+        df['parent_project_name'] = parent_project_name
+        df['client'] = client
+        df['project_name'] = project_name
+        df['client_poc'] = client_poc
+        df['client_poc_email'] = client_poc_email
+        df['delivery_owner'] = delivery_owner
+        df['date_booked'] = date_booked
+        df['estimated_date_of_delivery'] = estimated_date_of_delivery
+        df['image_count'] = image_count
+        df['status'] = status
+        df['team'] = team
+        df['image_count_authored'] = image_count_authored
+        df['date_delivered'] = date_delivered
+        df['discipline'] = discipline
+        df['title_name'] = title_name
+        df['project_complexity'] = project_completxity
+        df['client_organization'] = client_organization
+        base_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/"
+        final_path = base_path + "project.csv"
+        df.to_csv(final_path)
+        return Response({"result" : final_path}, status = status.HTTP_200_OK)
+
+        

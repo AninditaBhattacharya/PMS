@@ -47,4 +47,5 @@ urlpatterns = [
     url(r'^create_client_organization/', views.CreateClientOrganization.as_view()),
     url(r'^read_client_organizations/', views.ReadAllClientOrganization.as_view()),
     url(r'^update_daily_image_count_tracker/', views.UpdateDailyImageTracker.as_view()),
+    url(r'export_pms_projects/', views.DownloadProject.as_view()),
 ]

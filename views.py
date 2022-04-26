@@ -186,7 +186,7 @@ class UpdateProject(APIView):
             pass
         try:
             date_booked = post_param['date_booked']
-            project_object.date_booked = date_booked
+            project_object.date_booked = datetime_parser.parse(date_booked)
         except:
             pass
         try:

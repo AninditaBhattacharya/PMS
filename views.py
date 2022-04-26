@@ -1399,4 +1399,46 @@ class DownloadProject(APIView):
         df.to_csv(final_path)
         return Response({"result" : final_path}, status = status.HTTP_200_OK)
 
-        
+class DownloadFinance(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        project = []
+        title_name = []
+        project_quote = []
+        project_currency = []
+        expected_invoicing_date = []
+        po_amount = []
+        po_number = []
+        date_invoiced = []
+        amount_invoiced = []
+        number_of_days_since_invoiced = []
+        expected_money_in_date = []
+        money_in = []
+        objects = Finance.objects.all()
+        for i in objects:
+            title_name.append(i.title_name)
+            project_quote.append(i.project_quote)
+            project_currency.append(i.project_currency)
+            expected_invoicing_date.append(i.expected_invoicing_date)
+            po_amount.append(i.po_amount)
+            po_number.append(i.po_number)
+            date_invoiced.append(i.date_invoiced)
+            amount_invoiced.append(i.amount_invoiced)
+            number_of_days_since_invoiced.append(i.number_of_days_since_invoiced)
+            expected_money_in_date.append(i.expected_money_in_date)
+            money_in.append(i.money_in)
+        df = pd.DataFrame()
+        df['title_name'] = title_name
+        df['project_quote'] = project_quote
+        df['project_currency'] = project_currency
+        df['expected_invoicing_date'] = expected_money_in_date
+        df['po_amount'] = po_amount
+        df['po_number'] = po_number
+        df['date_invoiced'] = date_invoiced
+        df['amount_invoiced'] = amount_invoiced
+        df['number_of_days_since_invoiced'] = number_of_days_since_invoiced
+        df['expected_money_in_date'] = expected_money_in_date
+        df['money_in'] = money_in
+        final_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/finance.csv"
+        df.to_csv(final_path)
+        return Response({"result" : final_path}, status=status.HTTP_200_OK)

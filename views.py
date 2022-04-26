@@ -99,7 +99,7 @@ class CreateProject(APIView):
                 project_object.estimated_date_of_delivery = estimated_date_of_delivery
                 project_object.image_count = image_count
                 project_object.status = status_project
-                project_object.team = team
+                project_object.team = json.dumps(team)
                 project_object.image_count_authored = image_count_authored
                 project_object.date_delivered = date_delivered
                 project_object.created_by = user_object
@@ -217,7 +217,7 @@ class UpdateProject(APIView):
             pass
         try:
             team = post_param['team']
-            project_object.team = team
+            project_object.team = json.dumps(team)
         except:
             pass
         try:
@@ -298,7 +298,7 @@ class ReadProjects(APIView):
                     "estimated_date_of_delivery" : json.loads(project_object.estimated_date_of_delivery),
                     "image_count" : project_object.image_count, 
                     "status" : project_object.status,
-                    "team" : project_object.team,
+                    "team" : json.loads(project_object.team),
                     "image_count_authored" : project_object.image_count_authored,
                     "date_delivered" : project_object.date_delivered,
                     "created_by" : project_object.created_by.email,

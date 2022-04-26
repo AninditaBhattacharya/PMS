@@ -1442,3 +1442,48 @@ class DownloadFinance(APIView):
         final_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/finance.csv"
         df.to_csv(final_path)
         return Response({"result" : final_path}, status=status.HTTP_200_OK)
+
+class DownloadDailyImageTracker(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        project_name = []
+        title_name = []
+        expected_count = []
+        delivered_count = []
+        date = []
+        estimated_hours = []
+        worked_hours = []
+        work_type = []
+        employee_type = []
+        team_member = []
+        statuss = []
+        objects = DailyImageTracker.objects.all()
+        for i in objects:
+            project_name.append(i.project.project_name)
+            title_name.append(i.title_name)
+            expected_count.append(i.expected_count)
+            delivered_count.append(i.delivered_count)
+            date.append(i.date)
+            estimated_hours.append(i.estimated_hours)
+            worked_hours.append(i.worked_hours)
+            work_type.append(i.work_type)
+            employee_type.append(i.employee_type)
+            team_member.append(i.team_member)
+            statuss.append(i.status)
+        df = pd.DataFrame()
+        df['project_name'] = project_name
+        df['title_name'] = title_name
+        df['expected_count'] = expected_count
+        df['deliered_count'] = delivered_count
+        df['date'] = date
+        df['estimated_hours'] = estimated_hours
+        df['worked_hours'] = worked_hours
+        df['work_type'] = work_type
+        df['employee_type'] = employee_type
+        df['team_member'] = team_member
+        df['status'] = statuss
+        final_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/daliy_image_tracker.csv"
+        df.to_csv(final_path)
+        return Response({"result" : final_path}, status = status.HTTP_200_OK)
+
+

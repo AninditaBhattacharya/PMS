@@ -7,18 +7,29 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
-from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker
+from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker,TeamMember, InvoiceCounter, TrackingCounter
+from .serializers import (
+    TeamMemberStoreSerializer,
+    TeamMemberDisplaySerializer
+    )
+from datetime import date
+import csv
 from datetime import date
 from dateutil import parser as datetime_parser
+from datetime import datetime
 from utils.views import handle_file_upload
 import json
 import pandas as pd
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 class CreateUserPMS(APIView):
     '''
     POST Method to create a PMS User with permissions.
     '''
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
         post_param = request.data
         bool_values = {'true': True, 'false': False}
@@ -35,11 +46,23 @@ class CreateUserPMS(APIView):
         is_super_admin = post_param['is_super_admin']
         is_admin = post_param['is_admin']
         is_assosciate_admin = post_param['is_assosciate_admin']
+        contact_number = post_param['contact_number']
+        #discipline_expertise = post_param['discipline_expertise']
+        disp_expertise_id = post_param['disp_expertise_id']
+        work_expertise = post_param['work_expertise']
+        employee_type = post_param['employee_type']
+        logger.info(post_param)
         user_type_object = UserType()
         user_type_object.user = user
         user_type_object.is_superadmin = is_super_admin
         user_type_object.is_admin = is_admin
         user_type_object.is_assosciate_admin = is_assosciate_admin
+        user_type_object.contact_number = contact_number
+        #user_type_object.discipline_expertise = discipline_expertise
+        user_type_object.work_expertise = work_expertise
+        user_type_object.employee_type = employee_type
+        user_type_object.disp_expertise_id = disp_expertise_id
+
         user_type_object.save()
         return Response(user_serializer.data, status = status.HTTP_201_CREATED)
 
@@ -52,11 +75,12 @@ class CreateProject(APIView):
         post_param = request.data
         client_code = post_param['client_code']
         client_objects = Client.objects.filter(client_code = client_code)
+        logger.info(post_param)
         if len(client_objects):
             client_object = client_objects[0]
             #project_name = post_param['project_name']
-            client_poc = post_param['client_poc']
-            client_poc_email = post_param['client_poc_email']
+            #client_poc = post_param['client_poc']
+            #client_poc_email = post_param['client_poc_email']
             delivery_owner_email = post_param['delivery_owner_email']
             delivery_owner_objects = DeliveryOwner.objects.filter(email = delivery_owner_email)
             if len(delivery_owner_objects):
@@ -68,21 +92,26 @@ class CreateProject(APIView):
                 project_type_object.is_remediation = project_type_is_remediation
                 project_type_object.save()
                 date_booked = datetime_parser.parse(post_param['date_booked'])
-                doc_type_docx = post_param['doc_type_docx']
-                doc_type_pdf = post_param['doc_type_pdf']
-                doc_type_pptx = post_param['doc_type_pptx']
-                doc_type_xlsx = post_param['doc_type_xlsx']
-                doc_type_object = DocType()
-                doc_type_object.docx = doc_type_docx
-                doc_type_object.pdf = doc_type_pdf
-                doc_type_object.pptx = doc_type_pptx
-                doc_type_object.xlsx = doc_type_xlsx
-                doc_type_object.save()
-                estimated_date_of_delivery = json.dumps(post_param['estimated_date_of_delivery'])
+                #doc_type_docx = post_param['doc_type_docx']
+                #doc_type_pdf = post_param['doc_type_pdf']
+                #doc_type_pptx = post_param['doc_type_pptx']
+                #doc_type_xlsx = post_param['doc_type_xlsx']
+                #doc_type_object = DocType()
+                #doc_type_object.docx = doc_type_docx
+                #doc_type_object.pdf = doc_type_pdf
+                #doc_type_object.pptx = doc_type_pptx
+                #doc_type_object.xlsx = doc_type_xlsx
+                #doc_type_object.save()
+                #estimated_date_of_delivery = json.dumps(post_param['estimated_date_of_delivery'])
+                estimated_date_of_delivery = post_param['estimated_date_of_delivery']
+                logger.info('#$#$#$#$------')
+                logger.info(estimated_date_of_delivery)
                 image_count = post_param['image_count']
                 status_project = post_param['status']
                 team = post_param['team']
                 image_count_authored = post_param['image_count_authored']
+                if not image_count_authored:
+                    image_count_authored = 0
                 date_delivered = datetime_parser.parse(post_param['date_delivered'])
                 user_object = request.user
                 project_object = PMSProject()
@@ -92,12 +121,12 @@ class CreateProject(APIView):
                     project_object.parent_project_name = None
                 project_object.client = client_object
                 #project_object.project_name = project_name
-                project_object.client_poc = client_poc
-                project_object.client_poc_email = client_poc_email
+                #project_object.client_poc = client_poc
+                #project_object.client_poc_email = client_poc_email
                 project_object.delivery_owner = delivery_owner_object
                 project_object.project_type = project_type_object
                 project_object.date_booked = date_booked
-                project_object.doc_type = doc_type_object
+                #project_object.doc_type = doc_type_object
                 project_object.estimated_date_of_delivery = estimated_date_of_delivery
                 project_object.image_count = image_count
                 project_object.status = status_project
@@ -110,9 +139,9 @@ class CreateProject(APIView):
                 project_object.discipline = discipline_object
                 project_object.project_complexity = post_param['project_complexity']
                 project_object.title_name = post_param['title_name']
-                client_organization_id = post_param['client_organization_id']
-                client_organization_object = ClientOrganization.objects.get(pk = client_organization_id)
-                project_object.client_organization = client_organization_object
+                #client_organization_id = post_param['client_organization_id']
+                #client_organization_object = ClientOrganization.objects.get(pk = client_organization_id)
+                #project_object.client_organization = client_organization_object
                 current_year = date.today().year
                 counter_objects = Counter.objects.filter(client = client_object, discipline = discipline_object, year = current_year)
                 if len(counter_objects):
@@ -128,8 +157,8 @@ class CreateProject(APIView):
                     counter_object.client = client_object
                     counter_object.discipline = discipline_object
                     counter_object.year = current_year
-                    counter_object.counter = 0
-                    project_name =  client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + "00"
+                    counter_object.counter = 2
+                    project_name =  client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + "01"
                     counter_object.save()
                 project_object.project_name = project_name
                 project_object.save()
@@ -189,21 +218,9 @@ class UpdateProject(APIView):
             project_object.date_booked = datetime_parser.parse(date_booked)
         except:
             pass
+
         try:
-            doc_type_docx = post_param['doc_type_docx']
-            doc_type_pdf = post_param['doc_type_pdf']
-            doc_type_pptx = post_param['doc_type_pptx']
-            doc_type_xlsx = post_param['doc_type_xlsx']
-            doc_type_object = project_object.doc_type
-            doc_type_object.docx = doc_type_docx
-            doc_type_object.pdf = doc_type_pdf
-            doc_type_object.pptx = doc_type_pptx
-            doc_type_object.xlsx = doc_type_xlsx
-            doc_type_object.save()
-        except:
-            pass
-        try:
-            estimated_date_of_delivery = json.dumps(post_param['estimated_date_of_delivery'])
+            estimated_date_of_delivery = post_param['estimated_date_of_delivery']
             project_object.estimated_date_of_delivery = estimated_date_of_delivery
         except:
             pass
@@ -219,7 +236,7 @@ class UpdateProject(APIView):
             pass
         try:
             team = post_param['team']
-            project_object.team = json.dumps(team)
+            project_object.team = team
         except:
             pass
         try:
@@ -277,30 +294,49 @@ class ReadProjects(APIView):
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
+        projects_objects = PMSProject.objects.all().values('id','project_name','parent_project_name','client__client_code','delivery_owner__email','status','delivery_owner__id','project_type__is_alttext','project_type__is_remediation','date_booked','estimated_date_of_delivery','image_count','team','image_count_authored','date_delivered','created_by__email','discipline__discipline_name','title_name','project_complexity','discipline__id')
+        projects_list = list(projects_objects)
+
+        update_proj_list = []
+        for project_info in projects_list:
+            project_info['project_id'] = project_info['id']
+            project_info['client_code'] = project_info['client__client_code']
+            project_info['delivery_owner_email'] = project_info['delivery_owner__email']
+            project_info['delivery_owner_id'] = project_info['delivery_owner__id']
+            project_info['project_type_is_alttext'] = project_info['project_type__is_alttext']
+            project_info['project_type_is_remediation'] = project_info['project_type__is_remediation']
+            project_info['created_by'] = project_info['created_by__email']
+            project_info['discipline'] = project_info['discipline__discipline_name']
+            project_info['discipline_id'] = project_info['discipline__id']
+            project_info['estimated_date_of_delivery'] = project_info['estimated_date_of_delivery']
+            project_info['team'] = project_info['team']
+            #del project_info['client__client_code']
+            update_proj_list.append(project_info)
+        return Response({"result" : update_proj_list}, status=status.HTTP_200_OK)
+
         project_objects = PMSProject.objects.all()
+        logger.info(PMSProject.objects.db)
         response_object = []
         for project_object in project_objects:
             teams = project_object.team
-            teams_array = teams[1:-1].split(",")
-            response_object.append(
-                {
+            try:
+                teams_array = teams[1:-1].split(",")
+            except:
+                teams_array = []
+            try:
+                response_object.append(
+                    {
                     "project_id" : project_object.id,
                     "project_name" : project_object.project_name,
                     "parent_project_name" : project_object.parent_project_name,
                     "client_code" : project_object.client.client_code,
-                    "client_poc" : project_object.client_poc,
-                    "client_poc_email" : project_object.client_poc_email,
                     "delivery_owner_email" : project_object.delivery_owner.email,
                     "delivery_owner_id" : project_object.delivery_owner.id,
                     "project_type_is_alttext" : project_object.project_type.is_alttext,
                     "project_type_is_remediation" : project_object.project_type.is_remediation,
                     "date_booked" : project_object.date_booked,
-                    "doc_type_docx" : project_object.doc_type.docx,
-                    "doc_type_pdf" : project_object.doc_type.pdf,
-                    "doc_type_pptx" : project_object.doc_type.pptx,
-                    "doc_type_xlsx" : project_object.doc_type.xlsx,
                     "estimated_date_of_delivery" : json.loads(project_object.estimated_date_of_delivery),
-                    "image_count" : project_object.image_count, 
+                    "image_count" : project_object.image_count,
                     "status" : project_object.status,
                     "team" : teams_array,
                     "image_count_authored" : project_object.image_count_authored,
@@ -312,8 +348,16 @@ class ReadProjects(APIView):
                     "discipline_id" : project_object.discipline.id,
                     "client_organization" : project_object.client_organization.client_organization_name,
                     "client_organization_id" : project_object.client_organization.id
-                }
-            )
+                    }
+                )
+            except:
+                response_object.append(
+                    {
+                        "project_id" : project_object.id,
+                        "project_name" : project_object.project_name,
+                        "date_booked" : project_object.date_booked
+                    })
+
         return Response({"result" : response_object}, status=status.HTTP_200_OK)
 
 class CreateClient(APIView):
@@ -325,11 +369,15 @@ class CreateClient(APIView):
         post_param = request.data
         client_name = post_param['client_name']
         client_code = post_param['client_code']
-        client_object = Client()
-        client_object.client_name = client_name
-        client_object.client_code = client_code
-        client_object.save()
-        return Response(status=status.HTTP_200_OK)
+        try:
+            client_object =  Client.objects.get(client_name=client_name.lower())
+            return Response({'message': 'Client already exist',}, status=status.HTTP_400_BAD_REQUEST)
+        except Client.DoesNotExist:
+            client_object = Client()
+            client_object.client_name = client_name.lower()
+            client_object.client_code = client_code
+            client_object.save()
+            return Response(status=status.HTTP_200_OK)
 
 class ReadClients(APIView):
     '''
@@ -343,7 +391,7 @@ class ReadClients(APIView):
             response_object.append(
                 {
                     "client_id" : client_object.id,
-                    "viewValue" : client_object.client_name, 
+                    "viewValue" : client_object.client_name,
                     "value" : client_object.client_code
                 }
             )
@@ -394,15 +442,19 @@ class CreateDeliveryOwner(APIView):
         post_param = request.data
         name = post_param['name']
         email = post_param['email']
-        delivery_owner_object = DeliveryOwner()
-        delivery_owner_object.name = name
-        delivery_owner_object.email = email
-        delivery_owner_object.save()
-        return Response(status = status.HTTP_200_OK)
+        try:
+            delivery_owner_object = DeliveryOwner.objects.get(email=email)
+            return Response({'message': 'Delivery owner email already exist',}, status=status.HTTP_400_BAD_REQUEST)
+        except DeliveryOwner.DoesNotExist:
+            delivery_owner_object = DeliveryOwner()
+            delivery_owner_object.name = name
+            delivery_owner_object.email = email
+            delivery_owner_object.save()
+            return Response(status = status.HTTP_200_OK)
 
 class ReadDeliveryOwners(APIView):
     '''
-    GET Method to read all Delivery Owners. 
+    GET Method to read all Delivery Owners.
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -461,11 +513,17 @@ class CreateDiscipline(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def post(self, request):
         post_param = request.data
-        discipline_object = Discipline()
-        discipline_object.discipline_name = post_param['discipline_name']
-        discipline_object.discipline_code = post_param['discipline_code']
-        discipline_object.save()
-        return Response(status = status.HTTP_200_OK)
+        disp_name = post_param['discipline_name'].lower()
+        disp_code = post_param['discipline_code']
+        try:
+            discipline_object = Discipline.objects.get(discipline_name=disp_name)
+            return Response({'message': 'Discipline name already exist',}, status=status.HTTP_400_BAD_REQUEST)
+        except Discipline.DoesNotExist:
+            discipline_object = Discipline()
+            discipline_object.discipline_name = disp_name
+            discipline_object.discipline_code = disp_code
+            discipline_object.save()
+            return Response(status = status.HTTP_200_OK)
 
 class ReadDisciplines(APIView):
     '''
@@ -548,7 +606,7 @@ class CreateCounter(APIView):
                 return Response({"error" : "No such discipline exists for given code."}, status = status.HTTP_417_EXPECTATION_FAILED)
         else:
             return Response({"error" : "No such client exists for given Client code."}, status = status.HTTP_417_EXPECTATION_FAILED)
-    
+
 class ReadCounters(APIView):
     '''
     GET Method to read all counter objects.
@@ -912,7 +970,7 @@ class ReadBufferImages(APIView):
                     "doc_type_pptx" : project_object.doc_type.pptx,
                     "doc_type_xlsx" : project_object.doc_type.xlsx,
                     "estimated_date_of_delivery" : project_object.estimated_date_of_delivery,
-                    "image_count" : project_object.image_count, 
+                    "image_count" : project_object.image_count,
                     "status" : project_object.status,
                     "team" : project_object.team,
                     "image_count_authored" : project_object.image_count_authored,
@@ -1003,7 +1061,7 @@ class ReadFinances(APIView):
                     "project_quote" : finance_object.project_quote,
                     "project_currency" : finance_object.project_currency,
                     "expected_invoicing_date" : finance_object.expected_invoicing_date,
-                    "po_amount" : finance_object.po_amount, 
+                    "po_amount" : finance_object.po_amount,
                     "po_number" : finance_object.po_number,
                     "date_invoiced" : finance_object.date_invoiced,
                     "amount_invoiced" : finance_object.amount_invoiced,
@@ -1103,8 +1161,9 @@ class ReadPMSProjectsDropdown(APIView):
         a = []
         projects = PMSProject.objects.all()
         for i in projects:
-            a.append(
-                {
+            try:
+                a.append(
+                    {
                     "id" : i.id,
                     "viewValue" : i.project_name,
                     "value" : i.id,
@@ -1114,9 +1173,18 @@ class ReadPMSProjectsDropdown(APIView):
                     "client_poc_email" : i.client_poc_email,
                     "discipline_id" : i.discipline.id,
                     "project_type_alttext" : i.project_type.is_alttext,
+                    "delivery_owner_email" : i.delivery_owner.email,
                     "project_type_remediation" : i.project_type.is_remediation
-                }
-            )
+                    }
+                )
+            except:
+                a.append(
+                        {
+                        "id": i.id,
+                        "viewValue" : i.project_name,
+                        "value" : i.id,
+                        "title_name" : i.title_name
+                        })
         return Response({"result" : a}, status=status.HTTP_200_OK)
 
 class CreateSegregation(APIView):
@@ -1136,12 +1204,186 @@ class CreateSegregation(APIView):
             segregate_object.machine_image_count_proposed = int(post_param['machine_image_count_proposed'])
             segregate_object.machine_image_count_delivered = int(post_param['machine_image_count_delivered'])
             segregate_object.manual_image_count_delivered = int(post_param['manual_image_count_delivered'])
-            segregate_object.machine_image_count_proposed = int(post_param['machine_image_count_proposed'])
+            segregate_object.manual_image_count_proposed = int(post_param['manual_image_count_proposed'])
             segregate_object.machine_accuracy  = float(post_param['machine_accuracy'])
             segregate_object.save()
             return Response(status = status.HTTP_200_OK)
         else:
             return Response({"error" : "Invalid Project ID"}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        seg_objs = Segregate.objects.all().values('id','title_name','manual_image_count_proposed','machine_image_count_proposed','machine_image_count_delivered','manual_image_count_delivered','machine_accuracy','project__project_name','project__id')
+        seg_list = list(seg_objs)
+        return Response({'result':seg_list}, status = status.HTTP_201_CREATED)
+
+    def put(self, request):
+        post_param = request.data
+        seg_id = post_param['id']
+        if True:
+            segregate_object = Segregate.objects.get(id=seg_id)
+            segregate_object.project_id = post_param['project_id']
+            segregate_object.title_name = post_param['title_name']
+            segregate_object.machine_image_count_proposed = int(post_param['machine_image_count_proposed'])
+            segregate_object.machine_image_count_delivered = int(post_param['machine_image_count_delivered'])
+            segregate_object.manual_image_count_delivered = int(post_param['manual_image_count_delivered'])
+            segregate_object.manual_image_count_proposed = int(post_param['manual_image_count_proposed'])
+            segregate_object.machine_accuracy  = float(post_param['machine_accuracy'])
+            segregate_object.save()
+            return Response(status = status.HTTP_200_OK)
+        #except:
+        #    return Response({"error" : "No such ID exists."}, status = status.HTTP_400_BAD_REQUEST)
+
+def create_project_id(projectname):
+    obj = PMSProject()
+    obj.project_name = projectname
+    obj.date_booked = datetime.today().strftime('%Y-%m-%d')
+    #obj.client_id = 1
+    #obj.created_by_id = 1
+    #obj.delivery_owner_id = 1
+    #obj.doc_type_id = 1
+    #obj.project_type_id = 1
+    #obj.discipline_id = 1
+    #obj.client_organization_id = 1
+    obj.save()
+
+class CreateProjectId(APIView):
+    '''
+    POST Method to create a Daily Image Tracker object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request):
+        post_param = request.data
+        client_id = post_param['client_id']
+        client_obj = Client.objects.filter(id = client_id)
+        dis_id = post_param['discipline_id']
+        select_date = post_param['project_date']
+        #counter = post_param['counter_number']
+        year = date.today().year
+        current_year = year
+        counter_objects = Counter.objects.filter(client_id = client_id, discipline = dis_id, year = current_year)
+        if len(counter_objects):
+            counter_object = counter_objects[0]
+            client_code = counter_object.client.client_code
+            discipline_code = counter_object.discipline.discipline_code
+            counter_value = counter_object.counter
+            if counter_value > 9:
+                project_name = client_code + "-" + str(current_year) + "-" + discipline_code + str(counter_value)
+            else:
+                project_name = client_code + "-" + str(current_year) + "-" + discipline_code + "0" + str(counter_value)
+            create_project_id(project_name)
+            counter_object.user = request.user
+            #logger.info(counter)
+            counter_object.save()
+            return Response({'project_name': project_name}, status = status.HTTP_200_OK)
+        else:
+            #return Response({'message':'Project doesnot exist'}, status = status.HTTP_200_OK)
+            counter_object = Counter()
+            counter_object.client_id = client_id
+            counter_object.discipline_id = dis_id
+            client_obj = Client.objects.get(id = client_id)
+            discipline_object = Discipline.objects.get(id = dis_id)
+            client_code = client_obj.client_code
+            counter_object.year = current_year
+            counter_object.counter = 2
+            project_name =  client_code + "-" + str(current_year) + "-" + discipline_object.discipline_code + "01"
+            counter_object.user = request.user
+            create_project_id(project_name)
+            counter_object.save()
+        return Response({'project_name':project_name}, status = status.HTTP_200_OK)
+
+
+class InvoiceInfo(APIView):
+    '''
+    POST Method to create a Daily Image Tracker object.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        project_name = self.request.GET.get('project_id', None)
+        #project_name = 'PSN-2022-CHM05'
+        #post_param = request.data
+        #project_name = post_param['project_id']
+        logger.info(project_name)
+        project_objects = PMSProject.objects.filter(project_name = project_name)
+        logger.info(project_objects.exists())
+        if not project_objects.exists():
+            create_project_id(project_name)
+            #return Response({'message':'project doesnot exist'}, status = status.HTTP_200_OK)
+        counter_objects = InvoiceCounter.objects.filter(project__project_name = project_name)
+        if counter_objects.exists():
+            counter_object = counter_objects[0]
+            project_name = counter_object.project.project_name
+            counter = counter_object.counter
+            year = project_name.split('-')[1]
+            count_value = str(counter)
+            if len(count_value) == 1:
+                count_value = '00'+count_value
+            elif len(count_value) == 2:
+                count_value = '0'+count_value
+            invoice_id = 'CE-'+str(year) + '-' + str(count_value)
+            return Response({'invoice_id': invoice_id}, status = status.HTTP_200_OK)
+        else:
+            year = project_name.split('-')[1] #check project or invoice
+            project_id = project_objects[0].id
+            track_objs = TrackingCounter.objects.filter(year = year)
+            if track_objs.exists():
+                track_obj = track_objs[0]
+                obj = InvoiceCounter()
+                obj.user = request.user
+                obj.project_id = project_id
+                obj.counter = track_obj.counter
+                count_value = str(track_obj.counter)
+                if len(count_value) == 1:
+                    count_value = '00'+count_value
+                elif len(count_value) == 2:
+                    count_value = '0'+count_value
+                invoice_id = 'CE-'+str(year) + '-' + str(count_value)
+                obj.save()
+                track_obj.counter = (track_obj.counter)+1
+                track_obj.save()
+            else:
+                track_obj = TrackingCounter()
+                track_obj.year = year
+                track_obj.counter = 2
+                track_obj.save()
+                obj = InvoiceCounter()
+                obj.user = request.user
+                obj.project_id = project_id
+                obj.counter = 1
+                invoice_id = 'CE-'+str(year) + '-00' + str(1)
+                obj.save()
+            return Response({'invoice_id':invoice_id}, status = status.HTTP_200_OK)
+
+    def post(self, request):
+        post_param = request.data
+        project_name = post_param['project_id']
+        try:
+            counter = post_param['counter']
+        except:
+            counter = None
+        project_objects = PMSProject.objects.filter(project_name = project_name)
+        if project_objects.exists():
+            count_object = InvoiceCounter.objects.filter(project__project_name = project_name)
+            project_object = project_objects[0]
+            logger.info(count_object.exists())
+            logger.info('#$#$#$#$')
+            if count_object.exists():
+                count_object = count_object[0]
+                count_object.project = project_object
+                if counter:
+                    count_object.counter = counter
+                    count_object.save()
+                else:
+                    prev_counter = count_object.counter
+                    count_object.counter = prev_counter + 1
+                    count_object.save()
+            else:
+                logger.info('control is here')
+                objcect = InvoiceCounter()
+                objcect.project = project_object
+                objcect.counter = 1
+                objcect.save()
+            return Response({'message':'counter value inserted in Data store'}, status = status.HTTP_200_OK)
+        else:
+            return Response({'message':'Project doesnot exist'}, status = status.HTTP_200_OK)
 
 class CreateDailyImageTracker(APIView):
     '''
@@ -1162,7 +1404,7 @@ class CreateDailyImageTracker(APIView):
             except:
                 pass
             try:
-                daily_image_tracker_object.delivered_count = int(post_param['delivered_count'])  
+                daily_image_tracker_object.delivered_count = int(post_param['delivered_count'])
             except:
                 pass
             try:
@@ -1177,13 +1419,15 @@ class CreateDailyImageTracker(APIView):
                 daily_image_tracker_object.worked_hours = int(post_param['worked_hours'])
             except:
                 pass
-            try:
-                daily_image_tracker_object.work_type = int(post_param['work_type'])
-            except:
-                pass
+            daily_image_tracker_object.work_type = post_param['work_type']
             daily_image_tracker_object.employee_type = post_param['employee_type']
-            daily_image_tracker_object.team_member = post_param['team_member']
+            #daily_image_tracker_object.team_member = post_param['team_member']
             daily_image_tracker_object.status = post_param['status']
+
+            daily_image_tracker_object.team_user_id = post_param['team_user_id']
+            daily_image_tracker_object.image_type = post_param['image_type']
+            daily_image_tracker_object.delivery_owner_id = post_param['delivery_owner_id']
+            daily_image_tracker_object.delivery_info = post_param['delivery_info']
             daily_image_tracker_object.save()
             return Response(status = status.HTTP_201_CREATED)
         else:
@@ -1196,8 +1440,20 @@ class ReadDailyImageTrackers(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
         res = []
-        daily_image_tracker_objects = DailyImageTracker.objects.all()
+        logger.info('#$#$#$#$#$------')
+        logger.info(request.user.id)
+        access_type = self.request.GET.get('type', None)
+        logger.info(access_type)
+        if access_type == 'is_admin':
+            daily_image_tracker_objects = DailyImageTracker.objects.all()
+            #daily_image_tracker_objects = DailyImageTracker.objects.filter(id=31)
+        else:
+            user_id = request.user.id
+            daily_image_tracker_objects = DailyImageTracker.objects.filter(team_user_id=user_id)
         for i in daily_image_tracker_objects:
+            logger.info(i.project.id)
+            logger.info(i.delivery_info)
+            logger.info(i.work_type)
             res.append(
                 {
                     "project_id" : i.project.id,
@@ -1212,9 +1468,28 @@ class ReadDailyImageTrackers(APIView):
                     "employee_type" : i.employee_type,
                     "team_member" : i.team_member,
                     "status" : i.status,
-                    "daily_image_count_tracker_id" : i.id
+                    "daily_image_count_tracker_id" : i.id,
+                    "delivery_owner_id" : i.delivery_owner_id,
+                    "image_type" : i.image_type,
+                    "delivery_owner_email" : i.delivery_owner.email,
+                    "team_user_id": i.team_user_id,
+                    "team_member_email": i.team_user.email,
+                    "delivery_info": i.delivery_info
                 }
             )
+        #date_wise_list = []
+        #if track_type == 'date_wise_track':
+        #    for img_track_info in res:
+        #        if not img_track_info:
+        #            date_wise_list.append(img_track_info)
+        #        else:
+        #            for date_info in delivery_info:
+        #                img_track_info['estimate_date'] = date_info['date']
+        #                img_track_info['delivery_count'] = date_info['delivery_count']
+        #                date_wise_list.append(img_track_info)
+        #    return Response({"result" : date_wise_list}, status = status.HTTP_200_OK)
+
+
         return Response({"result" : res}, status = status.HTTP_200_OK)
 
 class PermissionLevel(APIView):
@@ -1248,15 +1523,19 @@ class CreateClientOrganization(APIView):
         client_organization_name = post_param['client_organization_name']
         client_id = post_param['client_id']
         client_object = Client.objects.get(pk = client_id)
-        client_organization_object = ClientOrganization()
-        client_organization_object.client_organization_name = client_organization_name
-        client_organization_object.client = client_object
-        client_organization_object.save()
-        return Response(status = status.HTTP_200_OK)
-    
+        client_organization_object = ClientOrganization.objects.filter(client_organization_name=client_organization_name, client_id = client_id)
+        if client_organization_object.exists():
+            return Response({'message': 'Organization name already exist',}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            client_organization_object = ClientOrganization()
+            client_organization_object.client_organization_name = client_organization_name
+            client_organization_object.client = client_object
+            client_organization_object.save()
+            return Response(status = status.HTTP_200_OK)
+
 class ReadAllClientOrganization(APIView):
     '''
-    GET Method to read all Client Organizations. 
+    GET Method to read all Client Organizations.
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -1330,6 +1609,15 @@ class UpdateDailyImageTracker(APIView):
                 daily_image_tracker_object.status = post_param['status']
             except:
                 pass
+            try:
+                daily_image_tracker_object.status = post_param['status']
+            except:
+                pass
+
+            daily_image_tracker_object.delivery_owner_id = post_param['delivery_owner_id']
+            daily_image_tracker_object.image_type = post_param['image_type']
+            daily_image_tracker_object.team_user_id = post_param['team_user_id']
+            daily_image_tracker_object.delivery_info = post_param['delivery_info']
             daily_image_tracker_object.save()
             return Response(status = status.HTTP_200_OK)
         else:
@@ -1343,11 +1631,11 @@ class DownloadProject(APIView):
         client = []
         project_name = []
         client_poc = []
-        client_poc_email = []
+        #client_poc_email = []
         delivery_owner = []
         project_type = []
         date_booked = []
-        doc_type = []
+        #doc_type = []
         estimated_date_of_delivery = []
         image_count = []
         statuss = []
@@ -1357,13 +1645,13 @@ class DownloadProject(APIView):
         discipline = []
         title_name = []
         project_completxity = []
-        client_organization = []
+        #client_organization = []
         for i in objects:
             parent_project_name.append(i.parent_project_name)
-            client.append(i.client.client_code)
+            #client.append(i.client.client_code)
             project_name.append(i.project_name)
             client_poc.append(i.client_poc)
-            client_poc_email.append(i.client_poc_email)
+            #client_poc_email.append(i.client_poc_email)
             delivery_owner.append(i.delivery_owner)
             date_booked.append(i.date_booked)
             estimated_date_of_delivery.append(i.estimated_date_of_delivery)
@@ -1375,13 +1663,13 @@ class DownloadProject(APIView):
             discipline.append(i.discipline)
             title_name.append(i.title_name)
             project_completxity.append(i.project_complexity)
-            client_organization.append(i.client_organization)
+            #client_organization.append(i.client_organization)
         df = pd.DataFrame()
         df['parent_project_name'] = parent_project_name
-        df['client'] = client
+        #df['client'] = client
         df['project_name'] = project_name
         df['client_poc'] = client_poc
-        df['client_poc_email'] = client_poc_email
+        #df['client_poc_email'] = client_poc_email
         df['delivery_owner'] = delivery_owner
         df['date_booked'] = date_booked
         df['estimated_date_of_delivery'] = estimated_date_of_delivery
@@ -1393,7 +1681,7 @@ class DownloadProject(APIView):
         df['discipline'] = discipline
         df['title_name'] = title_name
         df['project_complexity'] = project_completxity
-        df['client_organization'] = client_organization
+        #df['client_organization'] = client_organization
         base_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/"
         final_path = base_path + "project.csv"
         df.to_csv(final_path)
@@ -1443,6 +1731,59 @@ class DownloadFinance(APIView):
         df.to_csv(final_path)
         return Response({"result" : final_path}, status=status.HTTP_200_OK)
 
+
+def list_of_dict_to_csv(data_dict):
+    status = False
+    csv_file_path = ""
+    if True:
+        today = date.today()
+        today_date = today.strftime("%d%m%Y")
+        keys = data_dict[0].keys()
+        csv_file_path = 'media/files/outputs/' + "/" + "daily_tracker__" + str(today_date) + ".csv"
+        with open(csv_file_path, 'w', encoding="utf-8-sig", newline='') as output_file:
+            dict_writer = csv.DictWriter(output_file, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(data_dict)
+            status = True
+    #except BaseException:
+    #    exc_type, exc_obj, exc_tb = sys.exc_info()
+    #    logger.info(exc_type)
+    return csv_file_path
+
+class DownloadDailyImageTrackerV2(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request):
+        obs_list = DailyImageTracker.objects.all().values('project__project_name','title_name','expected_count','delivered_count','date','estimated_hours','worked_hours','work_type','employee_type','team_user__email','status','delivery_owner__email','image_type','delivery_info')
+        obs_list = list(obs_list)
+        final_list = []
+
+        for track_info in obs_list:
+            track_info['project_name'] = track_info.pop('project__project_name')
+            track_info['team_member'] = track_info.pop('team_user__email')
+            track_info['delivery_owner'] = track_info.pop('delivery_owner__email')
+
+            if not track_info['delivery_info']:
+                track_info['delivery_date'] = None
+                track_info['delivery_count'] = None
+                final_list.append(track_info)
+            else:
+                for date_info in track_info['delivery_info']:
+                    track_info['delivery_date'] = date_info['delivery_date']
+                    track_info['delivery_count'] = date_info['delivery_count']
+                    final_list.append(track_info)
+        #update_final_list = [ for tra_info in final_list]
+        update_final_list = []
+        for tra_info in final_list:
+            if 'delivery_info' in tra_info:
+                del tra_info['delivery_info']
+            update_final_list.append(tra_info)
+        csv_file_path = list_of_dict_to_csv(update_final_list)
+        return Response({"result" : csv_file_path}, status = status.HTTP_200_OK)
+
+
+
+
+
 class DownloadDailyImageTracker(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
@@ -1456,7 +1797,9 @@ class DownloadDailyImageTracker(APIView):
         work_type = []
         employee_type = []
         team_member = []
+        delivery_owners = []
         statuss = []
+        image_types = []
         objects = DailyImageTracker.objects.all()
         for i in objects:
             project_name.append(i.project.project_name)
@@ -1468,8 +1811,10 @@ class DownloadDailyImageTracker(APIView):
             worked_hours.append(i.worked_hours)
             work_type.append(i.work_type)
             employee_type.append(i.employee_type)
-            team_member.append(i.team_member)
+            team_member.append(i.team_user.email)
             statuss.append(i.status)
+            delivery_owners.append(i.delivery_owner.email)
+            image_types.append(i.image_type)
         df = pd.DataFrame()
         df['project_name'] = project_name
         df['title_name'] = title_name
@@ -1482,8 +1827,52 @@ class DownloadDailyImageTracker(APIView):
         df['employee_type'] = employee_type
         df['team_member'] = team_member
         df['status'] = statuss
+        df['delivery_owner'] = delivery_owners
+        df['image_type'] = image_types
         final_path = "/home/ubuntu/aide-django-rest-framework/media/files/outputs/daliy_image_tracker.csv"
         df.to_csv(final_path)
         return Response({"result" : final_path}, status = status.HTTP_200_OK)
+
+
+class TeamMemberView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def post(self, request, format=None):
+        team_member_data = dict()
+        for key,value in request.data.items():
+            team_member_data[key] = value
+        email = team_member_data['email']
+        member_info = TeamMember.objects.filter(email=email)
+        if member_info.exists():
+            return Response({'message':'user already exist'},status=status.HTTP_200_OK)
+        serializer_obj = TeamMemberStoreSerializer(data=team_member_data)
+        if serializer_obj.is_valid():
+            serializer_obj.save()
+            return Response({'message':'user data stored'},status=status.HTTP_200_OK)
+        else:
+            return Response({'message': serializer_obj.errors,}, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, member_id=None):
+        try:
+            obj_list = UserType.objects.filter(is_assosciate_admin=True).values('user__id','user__first_name','user__last_name','user__email',  'disp_expertise__discipline_name','employee_type','work_expertise')
+            member_info = list(obj_list)
+            result_list = []
+            for user_info in member_info:
+                user_data = {}
+                user_data['team_user_id'] = user_info['user__id']
+                user_data['first_name'] = user_info['user__first_name']
+                user_data['last_name'] = user_info['user__last_name']
+                user_data['email'] = user_info['user__email']
+                user_data['discipline_name'] = user_info['disp_expertise__discipline_name']
+                user_data['employee_type'] = user_info['employee_type']
+                user_data['work_expertise'] = user_info['work_expertise']
+                result_list.append(user_data)
+
+            #member_info = TeamMember.objects.all()
+            #data = TeamMemberDisplaySerializer(member_info, many=True).data
+            return Response({'data': result_list }, status=status.HTTP_200_OK)
+        except:
+            message = f'issue in api'
+            return Response({'message': message,}, status=status.HTTP_400_BAD_REQUEST)
+
 
 

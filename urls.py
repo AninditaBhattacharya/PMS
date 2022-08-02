@@ -49,5 +49,9 @@ urlpatterns = [
     url(r'^update_daily_image_count_tracker/', views.UpdateDailyImageTracker.as_view()),
     url(r'export_pms_projects/', views.DownloadProject.as_view()),
     url(r'^export_pms_finance/', views.DownloadFinance.as_view()),
-    url(r'download_daily_image_tracker/', views.DownloadDailyImageTracker.as_view()),
+    url(r'download_daily_image_tracker/', views.DownloadDailyImageTrackerV2.as_view()),
+    url(r'create/teammember/', views.TeamMemberView.as_view()),
+    url(r'^teaminfo/', views.TeamMemberView.as_view()),
+    url(r'^create/projectid/', views.CreateProjectId.as_view()),
+    url(r'^invoice_info/', views.InvoiceInfo.as_view()),
 ]

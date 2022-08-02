@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
+
 
 class Client(models.Model):
     '''
@@ -40,32 +42,33 @@ class Discipline(models.Model):
 
 class ClientOrganization(models.Model):
     client_organization_name = models.CharField(max_length=1000, null=False, blank=False)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE) 
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
 class PMSProject(models.Model):
     '''
     DB Class to handle all the Project related information.
     '''
     parent_project_name = models.CharField(max_length=1000, null=True, blank=True)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
     project_name = models.CharField(max_length=1000, blank=True, null=True)
     client_poc = models.CharField(max_length=1000, blank=True, null=True)
     client_poc_email = models.EmailField(max_length=1000, blank=True, null=True)
-    delivery_owner = models.ForeignKey(DeliveryOwner, on_delete=models.CASCADE)
-    project_type = models.ForeignKey(ProjectType, on_delete=models.CASCADE)
+    delivery_owner = models.ForeignKey(DeliveryOwner, on_delete=models.CASCADE, null=True)
+    project_type = models.ForeignKey(ProjectType, on_delete=models.CASCADE, null=True)
     date_booked = models.DateField()
-    doc_type = models.ForeignKey(DocType, on_delete=models.CASCADE)
-    estimated_date_of_delivery = models.CharField(max_length=100000, blank=True, null=True)
+    doc_type = models.ForeignKey(DocType, on_delete=models.CASCADE,null=True)
+    #doc_type = models.CharField(max_length=100, blank=False, null=False)
+    estimated_date_of_delivery = JSONField(blank=True, null=True)
     image_count = models.IntegerField(default=0)
     status = models.CharField(max_length=100, blank=True, null=True)
-    team = models.CharField(max_length=10000, blank=True, null=True)
+    team = JSONField(blank=True, null=True)
     image_count_authored = models.IntegerField(default=0)
     date_delivered = models.DateField(blank=True, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, null=True)
     title_name = models.CharField(max_length=1000, null=True, blank=True)
     project_complexity = models.CharField(max_length=1000, null=True, blank=True)
-    client_organization = models.ForeignKey(ClientOrganization, on_delete=models.CASCADE)
+    client_organization = models.ForeignKey(ClientOrganization, on_delete=models.CASCADE, null=True)
 
 class Counter(models.Model):
     '''
@@ -73,6 +76,22 @@ class Counter(models.Model):
     '''
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
+    year = models.IntegerField(blank=False, null=False)
+    counter = models.IntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
+
+class InvoiceCounter(models.Model):
+    '''
+    DB Class to handle invoice / PO number tracks for each client for a year.
+    '''
+    project = models.ForeignKey(PMSProject, on_delete=models.CASCADE, null=True)
+    counter = models.IntegerField(default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
+
+class TrackingCounter(models.Model):
+    '''
+    DB Class to handle invoice / PO number tracks for each client for a year.
+    '''
     year = models.IntegerField(blank=False, null=False)
     counter = models.IntegerField(default=0)
 
@@ -133,6 +152,11 @@ class UserType(models.Model):
     is_superadmin = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_assosciate_admin = models.BooleanField(default=False)
+    contact_number = models.CharField(max_length=12, blank=True, null=True)
+    discipline_expertise = models.TextField(blank=True, null=True)
+    work_expertise = models.TextField(blank=True, null=True)
+    employee_type = models.TextField(blank=True, null=True)
+    disp_expertise = models.ForeignKey(Discipline, on_delete=models.CASCADE, null=True)
 
 class Segregate(models.Model):
     project = models.ForeignKey(PMSProject, on_delete=models.CASCADE)
@@ -148,6 +172,7 @@ class DailyImageTracker(models.Model):
     title_name = models.CharField(max_length=1000, null=False, blank=False)
     expected_count = models.IntegerField(default=0)
     delivered_count = models.IntegerField(default=0)
+    delivery_info = JSONField(blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     estimated_hours = models.IntegerField(default=0)
     worked_hours = models.IntegerField(default=0)
@@ -155,7 +180,15 @@ class DailyImageTracker(models.Model):
     employee_type = models.CharField(max_length=1000, blank=False, null=False)
     team_member = models.CharField(max_length=1000, blank=False, null=False)
     status = models.CharField(max_length=1000, blank=False, null=False)
+    delivery_owner = models.ForeignKey(DeliveryOwner, on_delete=models.CASCADE, null=True)
+    image_type = models.CharField(max_length=1000, blank=False, null=True)
+    team_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
-   
+class TeamMember(models.Model):
+    email = models.EmailField(max_length = 254)
+    first_name = models.TextField(blank=True, null=True)
+    last_name = models.TextField(blank=True, null=True)
+
+
 
 

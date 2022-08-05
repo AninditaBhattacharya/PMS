@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
+from contents.models import BaseLogger
 from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker,TeamMember, InvoiceCounter, TrackingCounter
 from .serializers import (
     TeamMemberStoreSerializer,
@@ -1876,3 +1877,26 @@ class TeamMemberView(APIView):
 
 
 
+class LoggerAPIAnalytics(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request, member_id=None):
+        try:
+            obj_list = BaseLogger.objects.using('default').all().values('altstatus','alttext_res','alttext_edit','jsonoutput','fileloc','feedback','chemlatex_res','chemlatex_edit','mathjson_res','mathjson_edit','chem_model_chosen','chem_model_predicted','bboxcoordinates','iscroppedman','isrepeatman','usererror__title','usererror__subject','id','user__email','discipline__categ','discipline__subcateg','repeatloggers_id').order_by("-created_date")
+            loggers_info = list(obj_list)
+            result_list = []
+            for logger_info in loggers_info:
+                logger_info['user'] = logger_info['user__email']
+                logger_info['chem_type_chosen'] = logger_info['chem_model_chosen']
+                logger_info['repeatlog_id'] = logger_info['repeatloggers_id']
+                logger_info['latex_res'] = logger_info['chemlatex_res']
+                logger_info['latex_edit'] = logger_info['chemlatex_edit']
+                logger_info['cropped'] = logger_info['iscroppedman']
+                logger_info['repeat'] = logger_info['isrepeatman']
+                result_list.append(logger_info)
+
+            #member_info = TeamMember.objects.all()
+            #data = TeamMemberDisplaySerializer(member_info, many=True).data
+            return Response({'data': result_list }, status=status.HTTP_200_OK)
+        except:
+            message = f'issue in api'
+            return Response({'message': message,}, status=status.HTTP_400_BAD_REQUEST)

@@ -5,6 +5,8 @@ from django.conf import settings
 from django.urls import path
 from . import views
 
+#testing
+
 urlpatterns = [
     url(r'^create_pms_user/', views.CreateUserPMS.as_view()),
     url(r'^create_project/', views.CreateProject.as_view()),

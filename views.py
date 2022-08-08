@@ -1900,3 +1900,31 @@ class LoggerAPIAnalytics(APIView):
         except:
             message = f'issue in api'
             return Response({'message': message,}, status=status.HTTP_400_BAD_REQUEST)
+
+class LoggerTableAnalytics(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    def get(self, request, member_id=None):
+        post_params = request.data
+        res_list = []
+        if post_params['type'] == 'cate_level':
+            dis_list = BaseLogger.objects.values('discipline__categ').annotate(count = Count('discipline__categ'))
+            res_list = list(dis_list)
+        elif post_params['type'] == 'sub_cate_level':
+            dis_list = BaseLogger.objects.values('discipline__categ','discipline__subcateg').annotate(count = Count('discipline__subcateg'))
+            res_list = list(dis_list)
+        elif post_params['type'] == 'user_level':
+            dist_user_list = BaseLogger.objects.all().values_list('user_id',flat=True).distinct()
+            for user_id in dist_user_list:
+                dis_list = BaseLogger.objects.filter(user_id=user_id).values('discipline_id','discipline__categ','discipline__subcateg','user__email','user__id').annotate(count = Count('discipline__subcateg'))
+                res_list.extend(list(dis_list))
+        elif post_params['type'] == 'date_level':
+            dis_list = BaseLogger.objects.values('created_date__date','discipline__categ').annotate(count = Count('created_date__date')).order_by('-created_date__date')
+            res_list = list(dis_list)
+        
+        return Response({'results': res_list}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+            
+
+
+

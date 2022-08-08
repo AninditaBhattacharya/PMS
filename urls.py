@@ -57,4 +57,5 @@ urlpatterns = [
     url(r'^create/projectid/', views.CreateProjectId.as_view()),
     url(r'^invoice_info/', views.InvoiceInfo.as_view()),
     url(r'^logger_info/', views.LoggerAPIAnalytics.as_view()),
+    url(r'^logger_table/', views.LoggerTableAnalytics.as_view())
 ]

@@ -1929,7 +1929,7 @@ class LoggerTableAnalytics(APIView):
             dis_list = BaseLogger.objects.using('default').values('created_date__date','discipline__categ').annotate(count = Count('created_date__date')).order_by('-created_date__date')
             res_list = list(dis_list)
         
-        return Response({'results': res_list}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'results': res_list}, status=status.HTTP_200_OK)
 
         
             

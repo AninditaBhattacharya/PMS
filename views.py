@@ -1884,10 +1884,12 @@ class LoggerAPIAnalytics(APIView):
         try:
             offset = int(request.query_params.get('offset', 0))
             number = int(request.query_params.get('number', 0))
-            obj_list = BaseLogger.objects.using('default').all().values('altstatus','alttext_res','alttext_edit','jsonoutput','fileloc','feedback','chemlatex_res','chemlatex_edit','mathjson_res','mathjson_edit','chem_model_chosen','chem_model_predicted','bboxcoordinates','iscroppedman','isrepeatman','usererror__title','usererror__subject','id','user__email','discipline__categ','discipline__subcateg','repeatloggers_id').order_by("-created_date")
-            loggers_info = list(obj_list)
+            obj = BaseLogger.objects.using('default').all()
+            total_count = obj.count()
+            obj_list = obj.values('altstatus','alttext_res','alttext_edit','jsonoutput','fileloc','feedback','chemlatex_res','chemlatex_edit','mathjson_res','mathjson_edit','chem_model_chosen','chem_model_predicted','bboxcoordinates','iscroppedman','isrepeatman','usererror__title','usererror__subject','id','user__email','discipline__categ','discipline__subcateg','repeatloggers_id').order_by("-created_date")[offset:offset+number]
+            #loggers_info = list(obj_list)
             result_list = []
-            for logger_info in loggers_info:
+            for logger_info in obj_list:
                 logger_info['user'] = logger_info['user__email']
                 logger_info['chem_type_chosen'] = logger_info['chem_model_chosen']
                 logger_info['repeatlog_id'] = logger_info['repeatloggers_id']
@@ -1898,7 +1900,7 @@ class LoggerAPIAnalytics(APIView):
                 result_list.append(logger_info)
             
             total_count = len(result_list)
-            result_list = result_list[offset:offset+number]
+            #result_list = result_list[offset:offset+number]
 
             #member_info = TeamMember.objects.all()
             #data = TeamMemberDisplaySerializer(member_info, many=True).data

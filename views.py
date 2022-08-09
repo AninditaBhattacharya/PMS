@@ -296,11 +296,23 @@ class ReadProjects(APIView):
     '''
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request):
+        obj_list = PMSProject.objects.filter(parent_project_name__isnull=False).values('project_name','parent_project_name')
+        proj_dic = {}
+        for project_info in obj_list:
+            if project_info['parent_project_name'] in proj_dic:
+                proj_dic[project_info['parent_project_name']] = proj_dic[project_info['parent_project_name']] + ', '+project_info['project_name']
+            else:
+                proj_dic[project_info['parent_project_name']] = project_info['project_name']
+
         projects_objects = PMSProject.objects.all().values('id','project_name','parent_project_name','client__client_code','delivery_owner__email','status','delivery_owner__id','project_type__is_alttext','project_type__is_remediation','date_booked','estimated_date_of_delivery','image_count','team','image_count_authored','date_delivered','created_by__email','discipline__discipline_name','title_name','project_complexity','discipline__id')
         projects_list = list(projects_objects)
 
         update_proj_list = []
         for project_info in projects_list:
+            if project_info['project_name'] in proj_dic:
+                project_info['parent_project_name'] = proj_dic[project_info['project_name']]
+            else:
+                project_info['parent_project_name'] = None
             project_info['project_id'] = project_info['id']
             project_info['client_code'] = project_info['client__client_code']
             project_info['delivery_owner_email'] = project_info['delivery_owner__email']

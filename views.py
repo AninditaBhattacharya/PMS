@@ -1882,8 +1882,8 @@ class LoggerAPIAnalytics(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request, member_id=None):
         try:
-            offset = int(self.request.GET.get('offset', 0))
-            number = int(self.request.GET.get('number', 0))
+            offset = int(request.query_params.get('offset', 0))
+            number = int(request.query_params.get('number', 0))
             obj_list = BaseLogger.objects.using('default').all().values('altstatus','alttext_res','alttext_edit','jsonoutput','fileloc','feedback','chemlatex_res','chemlatex_edit','mathjson_res','mathjson_edit','chem_model_chosen','chem_model_predicted','bboxcoordinates','iscroppedman','isrepeatman','usererror__title','usererror__subject','id','user__email','discipline__categ','discipline__subcateg','repeatloggers_id').order_by("-created_date")
             loggers_info = list(obj_list)
             result_list = []

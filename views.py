@@ -8,7 +8,6 @@ from django.contrib.auth import get_user_model
 from accounts.serializers import UserSerializer
 from accounts.views import create_userprofile
 from contents.models import BaseLogger
-from django.db.models import Count
 from pms.models import ClientOrganization, PMSProject, Discipline, DeliveryOwner, Counter, ProjectType, DayCountTracker, Client, DocType, BufferImages, Finance, Segregate, UserType, DailyImageTracker,TeamMember, InvoiceCounter, TrackingCounter
 from .serializers import (
     TeamMemberStoreSerializer,
@@ -1906,7 +1905,9 @@ class LoggerAPIAnalytics(APIView):
 class LoggerTableAnalytics(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request, member_id=None):
-        post_params = request.data
+        post_params = {}
+        post_params['type'] = self.request.GET.get('type', None)
+        #post_params = request.data
         res_list = []
         if post_params['type'] == 'cate_level':
             dis_list = BaseLogger.objects.using('default').values('discipline__categ').annotate(count = Count('discipline__categ'))

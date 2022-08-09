@@ -1882,6 +1882,8 @@ class LoggerAPIAnalytics(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     def get(self, request, member_id=None):
         try:
+            offset = int(self.request.GET.get('offset', 0))
+            number = int(self.request.GET.get('number', 0))
             obj_list = BaseLogger.objects.using('default').all().values('altstatus','alttext_res','alttext_edit','jsonoutput','fileloc','feedback','chemlatex_res','chemlatex_edit','mathjson_res','mathjson_edit','chem_model_chosen','chem_model_predicted','bboxcoordinates','iscroppedman','isrepeatman','usererror__title','usererror__subject','id','user__email','discipline__categ','discipline__subcateg','repeatloggers_id').order_by("-created_date")
             loggers_info = list(obj_list)
             result_list = []
@@ -1894,10 +1896,13 @@ class LoggerAPIAnalytics(APIView):
                 logger_info['cropped'] = logger_info['iscroppedman']
                 logger_info['repeat'] = logger_info['isrepeatman']
                 result_list.append(logger_info)
+            
+            total_count = len(result_list)
+            result_list = result_list[offset:offset+number]
 
             #member_info = TeamMember.objects.all()
             #data = TeamMemberDisplaySerializer(member_info, many=True).data
-            return Response({'data': result_list }, status=status.HTTP_200_OK)
+            return Response({'data': result_list, 'total_count':total_count }, status=status.HTTP_200_OK)
         except:
             message = f'issue in api'
             return Response({'message': message,}, status=status.HTTP_400_BAD_REQUEST)

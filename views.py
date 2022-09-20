@@ -24,7 +24,7 @@ import json
 import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
-from automate_invoice import *
+from auto_invoice import *
 
 class CreateUserPMS(APIView):
     '''

@@ -67,6 +67,17 @@ class CreateUserPMS(APIView):
 
         user_type_object.save()
         return Response(user_serializer.data, status = status.HTTP_201_CREATED)
+class Storing_InvoiceView(APIView):
+    def get(self,request):
+        all_invoice=InvoiceCounter.obejcts.all.views()
+        return Response("Message":all_invoice)
+    def post(self,request):
+        InvoiceCounter.objects.create(pn=request.data["Project_Number"],
+                                      if=request.data["Invoice_File"],
+                                      in=request.data["Invoice_Number"])
+        all_invoices=InvoiceCounter.obejcts.all.filter(id=request.data["Project_Number"]).value()
+        return Response("Message":all_invoices)
+
 
 class CreateProject(APIView):
     '''
@@ -1945,8 +1956,84 @@ class LoggerTableAnalytics(APIView):
         
         return Response({'results': res_list}, status=status.HTTP_200_OK)
 
+
+class CreateInvoice(APIView):
+    '''
+    POST Method to create multiple PO Invoices at a time.
+    '''
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def post(self, request):
+        post_params = request.data
+        project_id = post_params['project_id']
+        counter_objects = InvoiceCounter.objects.filter(project__project_name=project_id)
         
+        if counter_objects.exists():
+            counter_object = counter_objects[0]
+            counter = counter_object.counter
+            year = project_id.split('-')[1]
+            invoice_id = 'CE-'+str(year) + '-' + str(counter)
+        
+        else:
+            project_objects = PMSProject.objects.filter(project_name=project_id)
+            year = project_id.split('-')[1] #check project or invoice
+            project_id_int = project_objects[0].id
+            track_objs = TrackingCounter.objects.filter(year=year)
             
+            if track_objs.exists():
+                track_obj = track_objs[0]
+                obj = InvoiceCounter()
+                obj.user = request.user
+                obj.project_id = project_id_int
+                obj.counter = track_obj.counter
+                count_value = str(track_obj.counter)
+                if len(count_value) == 1:
+                    count_value = '00' + count_value
+                elif len(count_value) == 2:
+                    count_value = '0' + count_value
+                invoice_id = 'CE-'+str(year) + '-' + str(count_value)
+                obj.save()
+                track_obj.counter = (track_obj.counter)+1
+                track_obj.save()
+            
+            else:
+                track_obj = TrackingCounter()
+                track_obj.year = year
+                track_obj.counter = 2
+                track_obj.save()
+                obj = InvoiceCounter()
+                obj.user = request.user
+                obj.project_id = project_id_int
+                obj.counter = 1
+                invoice_id = 'CE-'+str(year) + '-00' + str(1)
+                obj.save()
+
+            # year = project_id.split('-')[1]
+            # invoice_id = 'CE-'+str(year) + '-' + '00'
+
+        results = []
+        for up_file in request.FILES.getlist('files'):
+            input_file_path = "media/" + handle_file_upload(up_file)
+            output_file_name = up_file.name.replace("PO_","Invoice_")
+            output_file_path = "media/files/outputs/" + output_file_name + ".docx"
+            automate(input_file_path, output_file_path, project_id, invoice_id)
+            invoice_object = POInvoice()
+            invoice_object.input_file_link = input_file_path
+            invoice_object.output_file_link = output_file_name
+            invoice_object.save()
+            results.append(
+                {
+                    "id" : invoice_object.id,
+                    "file_name" : up_file.name,
+                    "input_file_link" : input_file_path,
+                    "output_file_name" : output_file_name,
+                    "output_file_path" : output_file_path
+                }
+            )
+        
+        return Response({"results" : results}, status = status.HTTP_200_OK)
+
+          
 
 
 

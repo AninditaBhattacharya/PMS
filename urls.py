@@ -58,4 +58,6 @@ urlpatterns = [
     url(r'^invoice_info/', views.InvoiceInfo.as_view()),
     url(r'^logger_info/', views.LoggerAPIAnalytics.as_view()),
     url(r'^logger_table/', views.LoggerTableAnalytics.as_view())
+    url(r'^storing_invoice/',views.Storing_InvoiceView.as_view())
+    url(r'^automate_invoice/' , views.CreateInvoice.as_view()),
 ]

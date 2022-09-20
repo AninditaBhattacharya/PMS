@@ -44,11 +44,6 @@ class ClientOrganization(models.Model):
     client_organization_name = models.CharField(max_length=1000, null=False, blank=False)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
-class Storing_Invoice(models.Model):
-    Project_Number=models.ForeignKey(PMSProject,on_delete=models.CASCADE, null=True)
-    Invoice_File=models.URLField(max_length=500)
-    Invoice_Number=models.CharField(max_length=1000, blank=True, null=True)
-
 class PMSProject(models.Model):
     '''
     DB Class to handle all the Project related information.
@@ -83,7 +78,7 @@ class Counter(models.Model):
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE)
     year = models.IntegerField(blank=False, null=False)
     counter = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CAS.CADE,null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
 
 class InvoiceCounter(models.Model):
     '''
@@ -194,7 +189,7 @@ class TeamMember(models.Model):
     first_name = models.TextField(blank=True, null=True)
     last_name = models.TextField(blank=True, null=True)
 
-class SaveInvoide(models.Model):
+class Storing_Invoice(models.Model):
     Project_name=models.CharField(max_length=70)
     Invoice_Number=models.CharField(max_length=70)
     Invoice_File=models.CharField(max_length=70)

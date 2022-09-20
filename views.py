@@ -22,10 +22,9 @@ from django.db.models import Count
 from utils.views import handle_file_upload
 import json
 import pandas as pd
-
 import logging
 logger = logging.getLogger(__name__)
-
+from automate_invoice import *
 
 class CreateUserPMS(APIView):
     '''
@@ -72,11 +71,26 @@ class Storing_InvoiceView(APIView):
         all_invoice=InvoiceCounter.obejcts.all.views()
         return Response("Message":all_invoice)
     def post(self,request):
-        InvoiceCounter.objects.create(pn=request.data["Project_Number"],
+        post_param = request.data
+        project_name = post_param['project_id']
+        try:
+            counter = post_param['counter']
+        except:
+            counter = None
+        project_objects = PMSProject.objects.filter(project_name = project_name)
+        if project_objects.exists() :
+            count_object = InvoiceCounter.objects.filter(project__project_name = project_name)
+            if count_object.exists() or track_objs.exists:
+                InvoiceCounter.objects.create(pn=request.data["Project_Number"],
                                       if=request.data["Invoice_File"],
                                       in=request.data["Invoice_Number"])
-        all_invoices=InvoiceCounter.obejcts.all.filter(id=request.data["Project_Number"]).value()
-        return Response("Message":all_invoices)
+                all_invoices=InvoiceCounter.obejcts.all.filter(id=request.data["Project_Number"]).value()
+                return Response("Message":all_invoices)
+        else:
+            return Response({'message':'Project doesnot exist'}, status = status.HTTP_200_OK)
+              
+            
+       
 
 
 class CreateProject(APIView):
